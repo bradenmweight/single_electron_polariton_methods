@@ -11,9 +11,9 @@ The second step is to run the "One-Electron_Polariton_Solver.py" script, which s
       
       --- Requested by choosing BASIS = Fock (Solves photonic part in its Fock state basis defined from b^{\dag} b operators)
  
- The important parameters are the single-mode cavity energy wc (located at the top of the script) and the electron-photon coupling strength A0 which is passed in as an argument (see "example" folder).
+ The important parameters are the single-mode cavity energy wc (located at the top of the script) and the electron-photon coupling strength A0 which is passed in as an argument (see "SBATCH" submission script).
  
- 
+ Some simple plotting routines are provided in the "plot_polaritons.py" script.
  
  
  
