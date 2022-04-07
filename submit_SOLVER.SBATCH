@@ -10,36 +10,36 @@
 export OMP_NUM_THREADS=24
 export MKL_NUM_THREADS=24
 
-python3 Asym_Decoup_with_Arb_Vx.py 0.0
+python3 One-Electron_Polariton_Solver.py 0.0
 
 for j in {1..10..1}; do
     A=$( bc -l <<< $j*0.001 )
     echo "A0 = ${A}"
-    python3 Asym_Decoup_with_Arb_Vx.py $A
+    python3 One-Electron_Polariton_Solver.py $A
 done
 
 for j in {1..10..1}; do
     A=$( bc -l <<< $j*0.01 )
     echo "A0 = ${A}"
-    python3 Asym_Decoup_with_Arb_Vx.py $A
+    python3 One-Electron_Polariton_Solver.py $A
 done
 
 for j in {1..10..1}; do
     A=$( bc -l <<< $j*0.1 )
     echo "A0 = ${A}"
-    python3 Asym_Decoup_with_Arb_Vx.py $A
+    python3 One-Electron_Polariton_Solver.py $A
 done
 
 for j in {1..10..1}; do
     A=$( bc -l <<< $j*1 )
     echo "A0 = ${A}"
-    python3 Asym_Decoup_with_Arb_Vx.py $A
+    python3 One-Electron_Polariton_Solver.py $A
 done
 
 for j in {1..10..1}; do
     A=$( bc -l <<< $j*10 )
     echo "A0 = ${A}"
-    python3 Asym_Decoup_with_Arb_Vx.py $A
+    python3 One-Electron_Polariton_Solver.py $A
 done
 
 
