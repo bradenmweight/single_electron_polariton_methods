@@ -6,8 +6,10 @@ The first step in the run the "get_Potential_Data.py" script. Here, there are a 
 
 The second step is to run the "One-Electron_Polariton_Solver.py" script, which solves the electron-polariton Hamiltonian in a variety of ways.
   1. Asymptotically Decoupled Hamiltonian -- Ashida et al. PRL 126, 153603 (2021)
+ 
       --- Requested by choosing BASIS = Pc (Solves photonic part in its momentum basis)
-      --- Requested by choosing BASUS = Fock (Solves photonic part in its Fock state basis defined from b^{\dag} b operators)
+      
+      --- Requested by choosing BASIS = Fock (Solves photonic part in its Fock state basis defined from b^{\dag} b operators)
  
  The important parameters are the single-mode cavity energy wc (located at the top of the script) and the electron-photon coupling strength A0 which is passed in as an argument (see "example" folder).
  
