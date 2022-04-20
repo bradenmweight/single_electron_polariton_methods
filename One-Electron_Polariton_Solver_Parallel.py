@@ -11,7 +11,7 @@ import multiprocessing as mp
 
 def get_Globals():
     global wc, m0, qe, Nf, BASIS_ELECTRON, BASIS_PHOTON, HAM, DATA_DIR, Npc
-    global NCPUS # Test
+    global NCPUS 
 
     wc = 0.986 #/ 27.2114 # a.u. # Demler Fig 3a E1-E0 matter transition
 
