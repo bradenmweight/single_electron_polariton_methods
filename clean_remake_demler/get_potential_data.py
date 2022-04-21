@@ -88,7 +88,7 @@ def get_V(nR):
 
     wc = E[1] - E[0] #Resonant Condition
 
-    return Vmat_k, wc, KGrid
+    return Vk, wc, KGrid
 
 if ( __name__ == '__main__' ):
     get_V(512)
