@@ -5,29 +5,29 @@ import scipy as sc
 # from sympy.functions.special.gamma_functions import uppergamma
 # from matplotlib import pyplot as plt
 # from numpy import kron
-# from numba import jit
-# import subprocess as sp
-# import sys
-# import multiprocessing as mp
-from asyncio import constants
+from numba import jit
+import subprocess as sp
+import sys
+import multiprocessing as mp
+from functools import partial
 import get_potential_data as v
 import solve_hamiltonian as solve
 
 class param:
     wc = 0
     g_wc = 0
-    nf = 5
-    NCPUS =12
-    nR = 512
+    nf = 10
+    NCPUS = 24
+    nR = 128 # 512
     kGrid = np.zeros(nR)
     omega = 0
     xi_g = 0
     m_0 = 1
     hbar = 1
-
+    ng = 48
 
 def test_expm():
-    print("Start")
+    # print("Start")
 
     nf = 100
     b = np.zeros((nf,nf))
@@ -44,25 +44,21 @@ def test_expm():
     np.savetxt( f"test.dat", b_transform )
 
     test = np.allclose(b_transform, -1j*b.T, 0,1e-10)
-    print(test)
-
-    print("Done")
-
-
 
 def main():
 
     constants = param()
+    sp.call(f"mkdir -p data", shell=True)
 
-    test_expm()
+    # test_expm()
 
-    # Vk, constants.wc, constants.kGrid =  v.get_V(constants.nR)
+    Vk, constants.wc, constants.kGrid =  v.get_V(constants.nR)
 
-    # E, U = solve.solve_H(Vk, constants)
+    print(f"wc = {constants.wc}")
 
-    # g_wc_list = np.exp( np.linspace( np.log(10**-2), np.log(1000), 48 ) )
-    # with mp.Pool(processes=NCPUS) as pool:
-    #     pool.map( wrapper_function(), g_wc_list )
+    g_wc_list = np.exp( np.linspace( np.log(10**-2), np.log(100), constants.ng ))
+    with mp.Pool(processes=constants.NCPUS) as pool:
+        pool.map(partial(solve.solve_H, Vk, constants), g_wc_list)
 
 
 

@@ -1,16 +1,11 @@
 #!/home/mtayl29/anaconda3/bin/python
+from pickle import TRUE
 import numpy as np
 from matplotlib import pyplot as plt
 import subprocess as sp
 from scipy.special import erf
 import get_vx 
-#from numba import jit
-
-# def get_Globals():
-#     global nR
-
-#     nR = 32
-#     sp.call("mkdir -p Vx", shell=True)
+from numba import jit
 
 def get_V_k( RGrid, Vx ):
     def get_FFT( f_x, dx):
@@ -85,8 +80,9 @@ def get_V(nR):
 
     E, U, Vmat_k = get_solutions_K( KGrid, Vk )
     #plot_wfns_K( E,U,Vx,RGrid )
-
+    
     wc = E[1] - E[0] #Resonant Condition
+    print(f"wc = {wc}")
 
     return Vk, wc, KGrid
 

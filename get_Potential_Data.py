@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import subprocess as sp
+from scipy.special import erf
 #from numba import jit
 
 
@@ -8,7 +9,7 @@ import subprocess as sp
 def get_Globals():
     global nR, FIX_BOUNDARIES, SOLVE_X, SOLVE_K
 
-    nR = 32
+    nR = 512
     FIX_BOUNDARIES = False # Adds high wall potential to boundary of box.
     SOLVE_X = True
     SOLVE_K = True
@@ -45,7 +46,7 @@ def get_V_x__1Erfs( RGrid ):
     return Vx
 
 def get_Demler_FIG3_a():
-    RGrid = np.linspace(-2,2,nR)
+    RGrid = np.linspace(-2.6, 2.6, nR) # Seems like 512 points is best with these parameters
     Vx = np.zeros(( nR ))
     lam = 50
     mu  = 95

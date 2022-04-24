@@ -1,6 +1,5 @@
 #!/bin/bash
-##SBATCH -p exciton -A exciton
-#SBATCH -p standard
+#SBATCH -p action -A action
 #SBATCH -J TD
 #SBATCH -o output.slurm
 #SBATCH -t 5-00:00:00

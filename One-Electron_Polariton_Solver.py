@@ -206,10 +206,11 @@ def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION( KGrid, VMat_k, op_b
                         # Off-diagonal in photon: Fock Basis
                         # Off-diagonal in matter, V(\hat{X}) ~ V(k1 - k2)
                     if ( K_ind1 != K_ind2 ):
-                        kdiff = np.abs( K2 - K1 )
+                        # kdiff = np.abs( K2 - K1 )
+                        kdiff = ( K2 - K1 )
                         CHI_mat = op_b.T + op_b
                         matrix_term = sc.linalg.expm( 1j * kdiff * X_im * CHI_mat )
-                        H_Total[ index_total_1, index_total_2 ] += VMat_k[K_ind1,K_ind2] * matrix_term[n,m]
+                        H_Total[ index_total_1, index_total_2 ] += VMat_k[K_ind1,K_ind2] * matrix_term[n,m] / 2.0 / np.pi
 
     return H_Total   
 

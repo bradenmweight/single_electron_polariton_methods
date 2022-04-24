@@ -1,5 +1,4 @@
 #!/home/mtayl29/anaconda3/bin/python
-from asyncio import constants
 import numpy as np
 import scipy as sc
 from scipy.special import erf
@@ -11,96 +10,20 @@ import subprocess as sp
 import sys
 import multiprocessing as mp
 from main import param
+from build_hamiltonian import construct_h_total
 
-def construct_h_total(Vk, constants):
-    # Define identities
-    i_m = np.identity(constants.Rn)
-    i_ph = np.identity(constants.nf)
 
-    constants.omega, constants.xi_g = get_couplings(constants)
+def solve_H(Vk, constants, g_wc):
+    vcon = constants
+    vcon.g_wc = g_wc
 
-    k_e = get_momentum(constants)
-    v_shifted = get_shifted_v(i_m,i_ph,Vk, constants)
-
-    H = kron(i_m, get_h_ph(constants))
-    H += kron(k_e , i_ph)
-    H += v_shifted
-
-    return H
-
-def get_shifted_v(i_m,i_ph,Vk,constants):
-    # Define constants
-    nf = constants.nf
-    Rn = constants.Rn
-    xi = constants.xi
-    kGrid = constants.kGrid
+    print(f"g/wc = {g_wc}")
+    H = construct_h_total(Vk, vcon)
+    E, U = np.linalg.eigh( H )
     
-    # Generate chi
-    # b = get_b(nf)
-    b = np.zeros((nf,nf))
-    for m in range(1,nf):
-        b[m,m-1] = np.sqrt(m)
-    b = b.T
-    chi = b + b.T
+    wc = constants.wc
+    np.savetxt( f"data/E_AD_{constants.nf}_{constants.nR}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", E )
+    np.savetxt( f"data/E_AD_{constants.nf}_{constants.nR}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition.dat", E - E[0] )
+    np.savetxt( f"data/E_AD_{constants.nf}_{constants.nR}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition_NORM.dat", (E-E[0])/(E[1]-E[0]) )
 
-    # Generate the V with phase factor
-    v_shifted = np.zeros((nf*Rn,nf*Rn))
-    zero_matrix = np.zeros((nf*Rn,nf*Rn))
-    
-    for k1_ind in len(kGrid):
-        for k2_ind in len(kGrid):
-            # Define k values
-            k1 = kGrid[k1_ind]
-            k2 = kGrid[k2_ind]
-            kdiff = 
-    
-
-    chi_full_space = kron(i_m, chi)
-
-    return v_shifted
-
-def get_b(nf):
-    b = np.zeros((nf,nf))
-    for m in range(1,nf):
-        b[m,m-1] = np.sqrt(m)
-    return b.T
-
-def get_momentum(constants):
-    kGrid = constants.kGrid
-    m_eff = constants.m_0 * (1.0 + 2.0 * constants.g_wc**2)
-
-    k_e = np.diag(constants.hbar * kGrid**2 / 2.0 / m_eff)
-
-    return k_e
-    
-
-def get_h_ph(constants):
-    nf = constants.nf
-    omega = constants.omega
-    h_ph = np.identity(nf)
-    for n in range(nf):
-        h_ph[n] = omega * n
-    return h_ph
-
-def get_couplings(constants):
-    m = constants.m_0 # Mass of electron
-    hbar = constants.hbar
-    g = constants.wc * constants.g_wc 
-    N = 1 # Number of electrons
-
-    omega = np.sqrt(constants.wc**2 + 2 * N * g**2)
-    x_omega = np.sqrt(hbar / (m * omega))
-    xi_g = g * x_omega / omega
-
-    return omega, xi_g
-
-
-
-def solve_H(Vk, constants):
-    
-    H = construct_h_total(Vk, constants)
-
-
-    E = 0
-    U = 0
-    return E, U
+    return 

@@ -16,7 +16,8 @@ def get_V_x__201Erfs( nR , r_max):
     return Vx
 
 def get_double_well(nR):
-    RGrid = np.linspace(-2.6 / 512 * nR, 2.6 / 512 * nR, nR)
+    # RGrid = np.linspace(-2.6 / 512 * nR, 2.6 / 512 * nR, nR)
+    RGrid = np.linspace(-2.6 , 2.6 , nR)
     Vx =  np.zeros(len(RGrid))
     beta = 50
     gamma = 95 

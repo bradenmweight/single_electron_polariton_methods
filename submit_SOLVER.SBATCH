@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -p action
+#SBATCH -p action -A action
 #SBATCH -J TD
 #SBATCH -o output.slurm
 #SBATCH -t 1-00:00:00
