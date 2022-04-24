@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./clean_remake_demler"
+    ]
+}

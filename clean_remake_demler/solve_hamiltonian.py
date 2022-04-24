@@ -24,6 +24,7 @@ def construct_h_total(Vk, constants):
 
     H = kron(i_m, get_h_ph(constants))
     H += kron(k_e , i_ph)
+    H += v_shifted
 
     return H
 
@@ -32,6 +33,7 @@ def get_shifted_v(i_m,i_ph,Vk,constants):
     nf = constants.nf
     Rn = constants.Rn
     xi = constants.xi
+    kGrid = constants.kGrid
     
     # Generate chi
     # b = get_b(nf)
@@ -43,8 +45,15 @@ def get_shifted_v(i_m,i_ph,Vk,constants):
 
     # Generate the V with phase factor
     v_shifted = np.zeros((nf*Rn,nf*Rn))
-
-
+    zero_matrix = np.zeros((nf*Rn,nf*Rn))
+    
+    for k1_ind in len(kGrid):
+        for k2_ind in len(kGrid):
+            # Define k values
+            k1 = kGrid[k1_ind]
+            k2 = kGrid[k2_ind]
+            kdiff = 
+    
 
     chi_full_space = kron(i_m, chi)
 
