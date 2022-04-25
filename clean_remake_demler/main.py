@@ -16,15 +16,15 @@ import solve_hamiltonian as solve
 class param:
     wc = 0
     g_wc = 0
-    nf = 10
-    NCPUS = 24
-    nR = 128 # 512
+    nf = 5
+    NCPUS = 48
+    nR = 256 # 512
     kGrid = np.zeros(nR)
     omega = 0
     xi_g = 0
     m_0 = 1
     hbar = 1
-    ng = 48
+    ng = 48*2
 
 def test_expm():
     # print("Start")

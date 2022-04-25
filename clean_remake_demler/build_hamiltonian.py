@@ -39,7 +39,7 @@ def get_shifted_v(i_m,i_ph,Vk,constants):
             v_diff[k1_ind,k2_ind]= Vk[ k1_ind-k2_ind ]
 
             # Add kron(v_diff, exponential) to v_shifted
-            v_shifted += kron(v_diff, exponential) / 2.0 / np.pi
+            v_shifted += kron(v_diff, exponential) # / 2.0 / np.pi
             
     return v_shifted
 

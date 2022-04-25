@@ -87,5 +87,5 @@ def get_V(nR):
     return Vk, wc, KGrid
 
 if ( __name__ == '__main__' ):
-    get_V(512)
+    get_V(128)
 

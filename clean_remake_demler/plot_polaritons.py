@@ -2,10 +2,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 import subprocess as sp
 
-ng = 48
-wc = 0.986 # a.u.
+ng = 48*2
+wc = 1.0493# a.u.
 nf = 5
-nR = 64
+nR = 128
 BASIS = "AD"
 
 g_wc_list = np.exp( np.linspace( np.log(10**-2), np.log(100), ng ))
@@ -31,8 +31,12 @@ for state in plot_states:
 plt.legend()
 plt.xlim(1e-2,100)
 plt.ylim(0.05,3.5)
-plt.xlabel("$A_0$ (a.u.)",fontsize=15)
+plt.xlabel("$g / \omega_c$ (a.u.)",fontsize=15)
 plt.ylabel("Transition Energy (a.u.)",fontsize=15)
 plt.savefig(f"{DIR}/A0_Scan.jpg",dpi=300)
 
+output = np.zeros(( len(g_wc_list), NPol + 1 ))
+output[:,0] = g_wc_list
+output[:,1:] = EPol
+np.savetxt( f"{DIR}/plot_data.dat", output)
 
