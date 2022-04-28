@@ -3,9 +3,9 @@ from matplotlib import pyplot as plt
 import subprocess as sp
 
 ng = 48*2
-wc = 1.0493# a.u.
+wc = 1.1629# a.u.
 nf = 5
-nR = 128
+nR = 256
 BASIS = "AD"
 
 g_wc_list = np.exp( np.linspace( np.log(10**-2), np.log(100), ng ))

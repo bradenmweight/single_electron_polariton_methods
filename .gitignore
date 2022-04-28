@@ -1,3 +1,7 @@
 *.dat
 *.jpg
 *.slurm
+*.txt
+*.log
+*.eps
+*.pyc
