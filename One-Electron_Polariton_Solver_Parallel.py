@@ -13,8 +13,8 @@ def get_Globals():
     global wc, m0, qe, Nf, BASIS_ELECTRON, BASIS_PHOTON, HAM, DATA_DIR, Npc
     global NCPUS
 
-    wc = 0.98600303 #/ 27.2114 # a.u. # Demler Fig 3a E1-E0 matter transition
-    #wc = 1.03202434509 #/ 27.2114 # a.u. # QHO E1-E0 matter transition
+    #wc = 0.98600303 #/ 27.2114 # a.u. # Demler Fig 3a E1-E0 matter transition
+    wc = 1.03202434509 #/ 27.2114 # a.u. # Demler Fig 3b E1-E0 matter transition
 
     m0 = 1.0
     qe = 1.0
@@ -29,7 +29,7 @@ def get_Globals():
     ###   Need to be able to solve Pauli-Fierz ("D dot E") as well using dipoles. ---> DONE ~ BMW
     #   Add the Jaynes-Cummings solution just to satisfy class requirements...?
 
-    Nf  = 40  # Only used if calculating result in Fock basis
+    Nf  = 50  # Only used if calculating result in Fock basis
     Npc = 32 # Only used if calculating result in Grid/DVR basis
 
 
@@ -261,9 +261,9 @@ def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper( g_wc ):
 
     def compute_photon_number_AD_basis( N_AD, U, op_b, I_m ):
         op_b_Total = kron( I_m, op_b.T @ op_b )
-        for j in range( len(N_PF) ):
+        for j in range( len(N_AD) ):
             N_AD[j] = U[:,j].T @ op_b_Total @ U[:,j]
-        return N_PF
+        return N_AD
 
     print(f"g_wc = {np.round(g_wc,7)}")
 
@@ -291,7 +291,7 @@ def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper( g_wc ):
 
     ### COMPUTE VARIOUS OBSERVABLES ###
     N_AD = np.zeros(( len(E) ))
-    N_AD = compute_photon_number_PF_basis( N_AD, U, get_b(), np.identity( len(E)//Nf ) )
+    N_AD = compute_photon_number_AD_basis( N_AD, U, get_b(), np.identity( len(E)//Nf ) )
     
     
     np.savetxt( f"{DATA_DIR}/N_ADBasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_AD )
