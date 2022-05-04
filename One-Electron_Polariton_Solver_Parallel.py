@@ -11,24 +11,25 @@ import multiprocessing as mp
 
 def get_Globals():
     global wc, m0, qe, Nf, BASIS_ELECTRON, BASIS_PHOTON, HAM, DATA_DIR, Npc
-    global NCPUS 
+    global NCPUS
 
-    wc = 0.986 #/ 27.2114 # a.u. # Demler Fig 3a E1-E0 matter transition
+    wc = 0.98600303 #/ 27.2114 # a.u. # Demler Fig 3a E1-E0 matter transition
+    #wc = 1.03202434509 #/ 27.2114 # a.u. # QHO E1-E0 matter transition
 
     m0 = 1.0
     qe = 1.0
 
-    HAM = "PF" # "AD", "PF" -- Solves the Asympotically Decoupled (AD) or Pauli-Fierz Hamiltonians
+    HAM = "AD" # "AD", "PF" -- Solves the Asympotically Decoupled (AD) or Pauli-Fierz Hamiltonians
     BASIS_PHOTON   = "Fock" # "Pc" or "Fock" -- Defines basis of photonic states.
-    BASIS_ELECTRON = "R" # "R" or "K" -- Defines basis of electronic states as real ("R") or reciprocal ("K").
+    BASIS_ELECTRON = "K" # "R" or "K" -- Defines basis of electronic states as real ("R") or reciprocal ("K").
     
-    NCPUS = 12
+    NCPUS = 36
 
     ##### TO-DO ##### 
     ###   Need to be able to solve Pauli-Fierz ("D dot E") as well using dipoles. ---> DONE ~ BMW
     #   Add the Jaynes-Cummings solution just to satisfy class requirements...?
 
-    Nf  = 50  # Only used if calculating result in Fock basis
+    Nf  = 40  # Only used if calculating result in Fock basis
     Npc = 32 # Only used if calculating result in Grid/DVR basis
 
 
@@ -89,7 +90,7 @@ def T_el( RGrid ): # DVR Basis for electronic kinetic energy
             T[n,m] *= norm
     return  T
 
-def get_H_Total_PcBasis( KGrid, pc_Grid, VMat_k ):
+def get_H_Total_PcBasis( KGrid, pc_Grid, VMat_k ): # Bad function. Do not use.
 
     H_Total = np.zeros(( len(KGrid)*len(pc_Grid), len(KGrid)*len(pc_Grid) ), dtype=complex)
     m_eff = m0 * ( 1 + (g/wc)**2 )
@@ -167,14 +168,15 @@ def get_H_Total_Fock_Reciprocal__PI_SHIFT__FFT_CONVOLUTION( KGrid, VMat_k ):
                     #if ( n != m and K_ind1 != K_ind2 ):
                     #    H_Total[ index_total_1, index_total_2 ] += VMat_k[K_ind1,K_ind2] * matrix_term[n,m]
                     if ( K_ind1 != K_ind2 ):
-                        kdiff = np.abs( K2 - K1 )
+                        #kdiff = np.abs( K2 - K1 )
+                        kdiff = K2 - K1
                         PI_mat = 1j * (op_b.T - op_b)
                         matrix_term = sc.linalg.expm( 1j * kdiff * X_im * PI_mat )
-                        H_Total[ index_total_1, index_total_2 ] += VMat_k[K_ind1,K_ind2] * matrix_term[n,m]
+                        H_Total[ index_total_1, index_total_2 ] += (VMat_k[K_ind1,K_ind2] * matrix_term[n,m]) / 2 / np.pi
 
     return H_Total
 
-def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION( KGrid, VMat_k, op_b, OMEGA, Xi, m_eff ):
+def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__OLD( KGrid, VMat_k, op_b, OMEGA, Xi, m_eff ):
 
     H_Total = np.zeros(( len(KGrid)*Nf, len(KGrid)*Nf ), dtype=np.complex128 )
 
@@ -199,15 +201,69 @@ def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION( KGrid, VMat_k, op_b
                         # Off-diagonal in photon: Fock Basis
                         # Off-diagonal in matter, V(\hat{X}) ~ V(k1 - k2)
                     if ( K_ind1 != K_ind2 ):
-                        kdiff = np.abs( K2 - K1 )
+                        #kdiff = np.abs( K2 - K1 )
+                        kdiff = K2 - K1
                         CHI_mat = op_b.T + op_b
                         matrix_term = sc.linalg.expm( 1j * kdiff * Xi * CHI_mat )
-                        #H_Total[ index_total_1, index_total_2 ] += VMat_k[K_ind1,K_ind2] / 27.2114 * matrix_term[n,m]
                         H_Total[ index_total_1, index_total_2 ] += VMat_k[K_ind1,K_ind2] * matrix_term[n,m]
 
     return H_Total
 
+def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION( KGrid, VMat_k, op_b, OMEGA, Xi, m_eff ):
+
+    def get_v_shifted(KGrid,VMat_k,op_b,Xi):
+        
+        def braden_kron( A, B, NA, NB ):
+            #A = A[:,np.newaxis,:,np.newaxis]
+            #A = (A[:,np.newaxis,:,np.newaxis]*B[np.newaxis,:,np.newaxis,:]).reshape( NA*NB,NA*NB )
+            A = (A[:,None,:,None]*B[None,:,None,:]).reshape( NA*NB,NA*NB )
+            return A
+
+        v_shifted = np.zeros((len(KGrid)*Nf,len(KGrid)*Nf), dtype=np.complex64)
+        v_diff = np.zeros(( len(KGrid), len(KGrid) ), dtype=np.complex64)
+        chi = op_b + op_b.T
+        for k_ind1, k1 in enumerate(KGrid):
+            #print( k_ind1 )
+            for k_ind2, k2 in enumerate(KGrid):
+                kdiff = k1 - k2
+                phase = chi * Xi * kdiff
+                exponential = sc.linalg.expm( 1j * phase )
+                
+                v_diff = np.zeros(( len(KGrid), len(KGrid) ), dtype=np.complex64)
+                v_diff[k_ind1,k_ind2] = VMat_k[k_ind1,k_ind2]
+                #v_shifted += kron( v_diff, exponential )
+                v_shifted += braden_kron( v_diff, exponential, len(KGrid), Nf )
+
+        return v_shifted
+
+    def get_H_ph():
+        return np.diag( np.arange(Nf)*OMEGA )
+
+    def get_KE(KGrid,m_eff):
+        return np.diag( KGrid**2 / 2 / m_eff )
+
+    # Define Identities in Subspaces
+    I_m  = np.identity( len(KGrid) )
+    I_ph = np.identity( Nf )
+
+    # Get shifted V from FFT tricks
+    V_shifted = get_v_shifted(KGrid,VMat_k,op_b,Xi)
+
+    # Build Ham.
+    H_Total = np.zeros(( len(KGrid)*Nf, len(KGrid)*Nf ), dtype=np.complex128 )
+    H_Total += kron( I_m, get_H_ph() )
+    H_Total += kron( get_KE(KGrid,m_eff), I_ph )
+    H_Total += V_shifted
+
+    return H_Total
+
 def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper( g_wc ):
+
+    def compute_photon_number_AD_basis( N_AD, U, op_b, I_m ):
+        op_b_Total = kron( I_m, op_b.T @ op_b )
+        for j in range( len(N_PF) ):
+            N_AD[j] = U[:,j].T @ op_b_Total @ U[:,j]
+        return N_PF
 
     print(f"g_wc = {np.round(g_wc,7)}")
 
@@ -218,7 +274,7 @@ def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper( g_wc ):
     OMEGA = np.sqrt( wc**2 + 2*N*g**2 )
     X_omega = np.sqrt( 1 / OMEGA / m0 )
     Xi = g * X_omega / OMEGA
-    m_eff = m0 * ( 1 + (g/wc)**2 )
+    m_eff = m0 * ( 1 + 2*g_wc**2 )
 
     KGrid, VMat_k = get_Reciprocal_space_data() # Returns basis for momentum space as well as potential in complex momentum space V(k)
 
@@ -233,8 +289,16 @@ def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper( g_wc ):
     np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition_NORM.dat", (E-E[0])/(E[1]-E[0]) )
     #np.savetxt( f"U_{BASIS_PHOTON}_{BASIS_ELECTRON}.dat", U )
 
+    ### COMPUTE VARIOUS OBSERVABLES ###
+    N_AD = np.zeros(( len(E) ))
+    N_AD = compute_photon_number_PF_basis( N_AD, U, get_b(), np.identity( len(E)//Nf ) )
+    
+    
+    np.savetxt( f"{DATA_DIR}/N_ADBasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_AD )
 
-def get_H_Total_Fock_Real__CHI_SHIFT( RGrid, Vx_1D, op_b, T_elec ):
+def get_H_Total_Fock_Real__CHI_SHIFT( RGrid, Vx_1D, op_b, T_elec ): ## DOES NOT WORK YET
+    
+    assert( False ), "\n\tDO NOT USE AD WITH REAL-SPACE CHI SHIFT.\n"
 
     H_Total = np.zeros(( len(RGrid)*Nf, len(RGrid)*Nf ), dtype=complex )
     m_eff = m0 * ( 1 + (g/wc)**2 )
@@ -290,7 +354,9 @@ def get_H_Total_Fock_Real__Pauli_Fierz( Had, MU, op_b, A0 ):
 
 def get_H_Total_Fock_Real__Pauli_Fierz__Truncated( Had, MU, op_b, A0 ): # Enforce additional matter trunction
 
-    NTrunc = 2 # Includes S0 and S1 for NTrunc = 2
+    NTrunc = 50 # Includes S0 and S1 for NTrunc = 2
+
+    print(f"(Nf, Nm): ({Nf}, {NTrunc})")
 
     H_Total = np.zeros(( NTrunc*Nf, NTrunc*Nf ) ) # Pauli-Fierz is real-valued in this case.
 
@@ -298,34 +364,52 @@ def get_H_Total_Fock_Real__Pauli_Fierz__Truncated( Had, MU, op_b, A0 ): # Enforc
     I_p = np.identity( Nf )
     
     H_ph    = np.diag( np.arange(Nf) * wc ) # Photonic Hamiltonian
-    H_Total = kron( Had[:NTrunc,:NTrunc], I_p )             # Electronic Hamiltonian
-
+    
+    # Diagonal Pieces
+    H_Total += kron( Had[:NTrunc,:NTrunc], I_p )             # Electronic Hamiltonian
+    H_Total += kron( I_m, H_ph )                            # Photonic Hamiltonian
+    
     ### Interaction Hamiltonian ###
-    H_Total += kron( I_m, H_ph )
     H_Total += kron( MU[:NTrunc,:NTrunc], op_b.T + op_b ) * (A0 * wc) # chi = A0 * wc
-    H_Total += kron( MU[:NTrunc,:NTrunc] @ MU[:NTrunc,:NTrunc], I_p ) * (A0 * wc)**2 / wc
+    H_Total += kron( MU[:NTrunc,:NTrunc] @ MU[:NTrunc,:NTrunc], I_p ) * wc * A0**2
 
     return H_Total
 
 def get_H_Total_Fock_Real__Pauli_Fierz__Wrapper( g_wc ):
 
+    def compute_photon_number_PF_basis( N_PF, U, op_b, I_m ):
+        op_b_Total = kron( I_m, op_b.T @ op_b )
+        for j in range( len(N_PF) ):
+            N_PF[j] = U[:,j].T @ op_b_Total @ U[:,j] 
+        return N_PF
+
     print(f"g_wc = {np.round(g_wc,7)}")
 
-    A0 = g_wc * wc / qe / np.sqrt( wc / m0 )
+    A0 = (g_wc * wc) / qe / np.sqrt( wc / m0 ) #* 27.2114 * 10
+
+    print(f"A0 = {np.round(A0,7)}")
+
 
     _, _, MU, Had = get_Real_space_data() # Need electronic dipoles for interactions with photon field
     #H_Total_FockBasis = get_H_Total_Fock_Real__Pauli_Fierz( Had, MU, get_b() )
-    #H_Total_FockBasis = get_H_Total_Fock_Real__Pauli_Fierz__Truncated( Had, MU, get_b(), A0 )
-    H_Total_FockBasis = get_H_Total_Fock_Real__Pauli_Fierz( Had, MU, get_b(), A0 )
+    H_Total_FockBasis = get_H_Total_Fock_Real__Pauli_Fierz__Truncated( Had, MU, get_b(), A0 )
+    #H_Total_FockBasis = get_H_Total_Fock_Real__Pauli_Fierz( Had, MU, get_b(), A0 )
     #plot_H( H_Total_FockBasis, name="H_Total_FockBasis.jpg" )
     E, U = np.linalg.eigh( H_Total_FockBasis )
 
-    print (f"\tFinished g = {g_wc * wc}")
+    print (f"\tFinished g_wc = {g_wc}")
 
     np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", E )
     np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition.dat", E - E[0] )
     np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition_NORM.dat", (E-E[0])/(E[1]-E[0]) )
     #np.savetxt( f"U_{BASIS_PHOTON}_{BASIS_ELECTRON}.dat", U )
+
+    ### COMPUTE VARIOUS OBSERVABLES ###
+    N_PF = np.zeros(( len(E) ))
+    N_PF = compute_photon_number_PF_basis( N_PF, U, get_b(), np.identity( len(E)//Nf ) )
+    
+    
+    np.savetxt( f"{DATA_DIR}/N_PFBasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_PF )
 
 def get_Reciprocal_space_data():
     VMat_k = np.loadtxt( "Vx/VMat_k.dat", dtype=complex )
@@ -419,7 +503,8 @@ def main_parallel():
 
     get_Globals()
     
-    g_wc_list = np.exp( np.linspace( np.log(10**-2), np.log(1000), 48 ) )
+    g_wc_list = np.exp( np.linspace( np.log(10**-2), np.log(100), 96 ) )
+    #g_wc_list = np.linspace( 0,3,96 )
     with mp.Pool(processes=NCPUS) as pool:
         if( HAM == 'AD' and BASIS_PHOTON == "Fock" and BASIS_ELECTRON == "K" ): #### SOVE IN FOCK BASIS ####
             #pool.map( get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper, A0_list )
@@ -430,4 +515,6 @@ def main_parallel():
 if ( __name__ == '__main__' ):
     #main_serial()
     main_parallel()
+
+
 
