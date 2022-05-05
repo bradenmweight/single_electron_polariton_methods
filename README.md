@@ -17,7 +17,15 @@ The second step is to run the "One-Electron_Polariton_Solver.py" script, which s
  
       --- Requested by choosing HAM = PF
       
-      --- Requested by choosing BASIS_PHOTON = Fock (Solves photonic part in its Fock state basis defined from b^{\dag} b operators)
+      --- Requested by choosing BASIS_PHOTON = Fock (Solves photonic part in its Fock state basis defined from a^{\dag} a operators)
+      
+      --- Requested by BASIS_ELECTRON = R
+      
+  3. Pauli-Fierz Hamiltonian --- Mandal et al., J. Phys. Chem. Lett. 2020, 11, 9215−9223 [NEED ORIGINAL CITATION FOR PF.]
+ 
+      --- Requested by choosing HAM = JC
+      
+      --- Requested by choosing BASIS_PHOTON = Fock (Solves photonic part in its Fock state basis defined from a^{\dag} a operators)
       
       --- Requested by BASIS_ELECTRON = R
  
@@ -30,7 +38,7 @@ The second step is to run the "One-Electron_Polariton_Solver.py" script, which s
  
 **************************************
 Future plans are comprised of the following:
-  1. Need to add options to do Jaynes-Cummings Hamiltonian
+  1. Need to add options to do Polarized Fock States (PFS)
 
 
 
