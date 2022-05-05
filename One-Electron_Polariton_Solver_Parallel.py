@@ -383,6 +383,18 @@ def get_H_Total_Fock_Real__Pauli_Fierz__Wrapper( g_wc ):
             N_PF[j] = U[:,j].T @ op_b_Total @ U[:,j] 
         return N_PF
 
+    def compute_photon_number_PF_in_pA_basis( N_PF_in_pA, U, op_b, I_m, I_ph, A0, MU ):
+
+        print( np.shape( op_b ) )
+        print( np.shape( I_m ) )
+        print( np.shape( I_ph ) )
+
+        adaga_PF_in_pA = kron( I_m, op_b.T @ op_b ) + kron( MU, op_b.T + op_b) * A0 + kron( MU @ MU, I_ph ) * A0**2 - 0.5
+
+        for j in range( len(N_PF_in_pA) ):
+            N_PF_in_pA[j] = U[:,j].T @ adaga_PF_in_pA @ U[:,j]
+        return N_PF_in_pA
+
     print(f"g_wc = {np.round(g_wc,7)}")
 
     A0 = (g_wc * wc) / qe / np.sqrt( wc / m0 ) #* 27.2114 * 10
@@ -405,11 +417,15 @@ def get_H_Total_Fock_Real__Pauli_Fierz__Wrapper( g_wc ):
     #np.savetxt( f"U_{BASIS_PHOTON}_{BASIS_ELECTRON}.dat", U )
 
     ### COMPUTE VARIOUS OBSERVABLES ###
+    Nmatter = len(E)//Nf # Accounts for possible truncation of matter states
+
     N_PF = np.zeros(( len(E) ))
-    N_PF = compute_photon_number_PF_basis( N_PF, U, get_b(), np.identity( len(E)//Nf ) )
-    
-    
+    N_PF = compute_photon_number_PF_basis( N_PF, U, get_b(), np.identity( Nmatter ) )
     np.savetxt( f"{DATA_DIR}/N_PFBasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_PF )
+
+    N_PF_in_pA = np.zeros(( len(E) ))
+    N_PF_in_pA = compute_photon_number_PF_in_pA_basis( N_PF_in_pA, U, get_b(), np.identity( Nmatter ), np.identity( Nf ), A0, MU[:Nmatter,:Nmatter] )
+    np.savetxt( f"{DATA_DIR}/N_PF_in_pABasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_PF_in_pA )
 
 def get_Reciprocal_space_data():
     VMat_k = np.loadtxt( "Vx/VMat_k.dat", dtype=complex )
