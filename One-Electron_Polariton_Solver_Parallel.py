@@ -19,7 +19,7 @@ def get_Globals():
     m0 = 1.0
     qe = 1.0
 
-    HAM = "AD" # "AD", "PF" -- Solves the Asympotically Decoupled (AD) or Pauli-Fierz Hamiltonians
+    HAM = "AD" # "AD", "PF", "JC" -- Solves the Asympotically Decoupled (AD), Pauli-Fierz (PF), Jaynes-Cummings [PF + RWA - DSE] (JC) Hamiltonians
     BASIS_PHOTON   = "Fock" # "Pc" or "Fock" -- Defines basis of photonic states.
     BASIS_ELECTRON = "K" # "R" or "K" -- Defines basis of electronic states as real ("R") or reciprocal ("K").
     
@@ -27,7 +27,7 @@ def get_Globals():
 
     ##### TO-DO ##### 
     ###   Need to be able to solve Pauli-Fierz ("D dot E") as well using dipoles. ---> DONE ~ BMW
-    #   Add the Jaynes-Cummings solution just to satisfy class requirements...?
+    ###   Add the Jaynes-Cummings solution [ PF + RWA - DSE ]                     ---> DONE ~ BMW
 
     Nf  = 50  # Only used if calculating result in Fock basis
     Npc = 32 # Only used if calculating result in Grid/DVR basis
@@ -427,6 +427,52 @@ def get_H_Total_Fock_Real__Pauli_Fierz__Wrapper( g_wc ):
     N_PF_in_pA = compute_photon_number_PF_in_pA_basis( N_PF_in_pA, U, get_b(), np.identity( Nmatter ), np.identity( Nf ), A0, MU[:Nmatter,:Nmatter] )
     np.savetxt( f"{DATA_DIR}/N_PF_in_pABasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_PF_in_pA )
 
+def get_H_Total_Fock_Real__Jaynes_Cummings__Truncated( Had, MU, op_b, A0 ): # Enforce additional matter trunction
+
+    assert( Nf == 2 ), f"Jaynes-Cummings only includes two matter states and two Fock states. NFock = {Nf}"
+
+    NTrunc = 2 # Jaynes-Cummings only includes two matter states and two Fock states
+
+    print(f"(Nf, Nm): ({Nf}, {NTrunc})")
+
+    H_Total = np.zeros(( NTrunc*Nf, NTrunc*Nf ) ) # Jaynes-Cummings is real-valued in this case.
+   
+    assert( len(H_Total) == 4 ), f"Jaynes-Cummings must have a 4x4 Hamiltonian, D[H] = {len(H_Total)}"
+
+    H_ph    = np.diag( np.arange(Nf) * wc ) # Photonic Hamiltonian
+    
+    H_Total[0,0] = Had[0,0] + H_ph[0,0] # g0
+    H_Total[1,1] = Had[0,0] + H_ph[1,1] # g1
+
+    H_Total[2,2] = Had[1,1] + H_ph[0,0] # e0
+    H_Total[3,3] = Had[1,1] + H_ph[1,1] # e1
+
+    H_Total[1,2] = MU[0,1] * (op_b.T)[1,0] * (A0 * wc) # g1 -- e0
+    H_Total[2,1] = MU[1,0] * op_b[0,1] * (A0 * wc) # e1 -- g0
+
+    return H_Total
+
+def get_H_Total_Fock_Real__Jaynes_Cummings__Wrapper( g_wc ):
+
+    print(f"g_wc = {np.round(g_wc,7)}")
+
+    A0 = (g_wc * wc) / qe / np.sqrt( wc / m0 ) #* 27.2114 * 10
+
+    print(f"A0 = {np.round(A0,7)}")
+
+
+    _, _, MU, Had = get_Real_space_data() # Need electronic dipoles for interactions with photon field
+    H_Total_FockBasis = get_H_Total_Fock_Real__Jaynes_Cummings__Truncated( Had, MU, get_b(), A0 )
+    #plot_H( H_Total_FockBasis, name="H_Total_FockBasis.jpg" )
+    E, U = np.linalg.eigh( H_Total_FockBasis )
+
+    print (f"\tFinished g_wc = {g_wc}")
+
+    np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", E )
+    np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition.dat", E - E[0] )
+    np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition_NORM.dat", (E-E[0])/(E[1]-E[0]) )
+    #np.savetxt( f"U_{BASIS_PHOTON}_{BASIS_ELECTRON}.dat", U )
+    
 def get_Reciprocal_space_data():
     VMat_k = np.loadtxt( "Vx/VMat_k.dat", dtype=complex )
     KGrid  = np.loadtxt( "Vx/KGrid.dat" )
@@ -527,6 +573,8 @@ def main_parallel():
             pool.map( get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper, g_wc_list )
         elif( HAM == 'PF' and BASIS_PHOTON == "Fock" and BASIS_ELECTRON == "R" ): #### SOVE IN FOCK BASIS ####
             pool.map( get_H_Total_Fock_Real__Pauli_Fierz__Wrapper, g_wc_list )
+        elif( HAM == 'JC' and BASIS_PHOTON == "Fock" and BASIS_ELECTRON == "R" ):
+            pool.map( get_H_Total_Fock_Real__Jaynes_Cummings__Wrapper, g_wc_list )
 
 if ( __name__ == '__main__' ):
     #main_serial()
