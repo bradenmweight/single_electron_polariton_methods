@@ -21,7 +21,7 @@ The second step is to run the "One-Electron_Polariton_Solver.py" script, which s
       
       --- Requested by BASIS_ELECTRON = R
       
-  3. Pauli-Fierz Hamiltonian --- Mandal et al., J. Phys. Chem. Lett. 2020, 11, 9215−9223 [NEED ORIGINAL CITATION FOR PF.]
+  3. Jaynes-Cummings Hamiltonian
  
       --- Requested by choosing HAM = JC
       
