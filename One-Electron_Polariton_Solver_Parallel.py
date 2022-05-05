@@ -454,6 +454,12 @@ def get_H_Total_Fock_Real__Jaynes_Cummings__Truncated( Had, MU, op_b, A0 ): # En
 
 def get_H_Total_Fock_Real__Jaynes_Cummings__Wrapper( g_wc ):
 
+    def compute_photon_number_JC_basis( N_JC, U, op_b, I_m ):
+        op_b_Total = kron( I_m, op_b.T @ op_b )
+        for j in range( len(N_JC) ):
+            N_JC[j] = U[:,j].T @ op_b_Total @ U[:,j] 
+        return N_JC
+    
     print(f"g_wc = {np.round(g_wc,7)}")
 
     A0 = (g_wc * wc) / qe / np.sqrt( wc / m0 ) #* 27.2114 * 10
@@ -472,6 +478,10 @@ def get_H_Total_Fock_Real__Jaynes_Cummings__Wrapper( g_wc ):
     np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition.dat", E - E[0] )
     np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition_NORM.dat", (E-E[0])/(E[1]-E[0]) )
     #np.savetxt( f"U_{BASIS_PHOTON}_{BASIS_ELECTRON}.dat", U )
+    
+    N_JC = np.zeros(( len(E) ))
+    N_JC = compute_photon_number_JC_basis( N_JC, U, get_b(), np.identity( len(E)//Nf ) )
+    np.savetxt( f"{DATA_DIR}/N_JCBasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_JC )
     
 def get_Reciprocal_space_data():
     VMat_k = np.loadtxt( "Vx/VMat_k.dat", dtype=complex )
