@@ -13,13 +13,13 @@ def get_Globals():
     global wc, m0, qe, Nf, BASIS_ELECTRON, BASIS_PHOTON, HAM, DATA_DIR, Npc
     global NCPUS
 
-    #wc = 0.98600303 #/ 27.2114 # a.u. # Demler Fig 3a E1-E0 matter transition
-    wc = 1.03202434509 #/ 27.2114 # a.u. # Demler Fig 3b E1-E0 matter transition
+    wc = 0.98600303 #/ 27.2114 # a.u. # Demler Fig 3a E1-E0 matter transition
+    #wc = 1.03202434509 #/ 27.2114 # a.u. # QHO E1-E0 matter transition
 
     m0 = 1.0
     qe = 1.0
 
-    HAM = "AD" # "AD", "PF", "JC" -- Solves the Asympotically Decoupled (AD), Pauli-Fierz (PF), Jaynes-Cummings [PF + RWA - DSE] (JC) Hamiltonians
+    HAM = "AD" # "AD", "PF" -- Solves the Asympotically Decoupled (AD) or Pauli-Fierz Hamiltonians
     BASIS_PHOTON   = "Fock" # "Pc" or "Fock" -- Defines basis of photonic states.
     BASIS_ELECTRON = "K" # "R" or "K" -- Defines basis of electronic states as real ("R") or reciprocal ("K").
     
@@ -27,9 +27,9 @@ def get_Globals():
 
     ##### TO-DO ##### 
     ###   Need to be able to solve Pauli-Fierz ("D dot E") as well using dipoles. ---> DONE ~ BMW
-    ###   Add the Jaynes-Cummings solution [ PF + RWA - DSE ]                     ---> DONE ~ BMW
+    #   Add the Jaynes-Cummings solution just to satisfy class requirements...?
 
-    Nf  = 50  # Only used if calculating result in Fock basis
+    Nf  = 20  # Only used if calculating result in Fock basis
     Npc = 32 # Only used if calculating result in Grid/DVR basis
 
 
@@ -265,6 +265,25 @@ def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper( g_wc ):
             N_AD[j] = U[:,j].T @ op_b_Total @ U[:,j]
         return N_AD
 
+    def compute_photon_number_pA_basis__OLD( N_AD_in_pA, U, op_b, I_m ):
+        
+        v2 = 0.25 * ( (OMEGA**2 + wc**2)/(wc * OMEGA) - 2 )
+        adaga = 0.5 * (OMEGA**2 + wc**2)/(OMEGA * wc) * op_b.T @ op_b - 0.25 * (OMEGA**2 - wc**2)/(OMEGA * wc) * (op_b) + v2
+        adaga_Total = kron( I_m, adaga )
+        
+        for j in range( len(N_AD_in_pA) ):
+            N_AD_in_pA[j] = U[:,j].T @ adaga_Total @ U[:,j]
+        return N_AD_in_pA
+
+    def compute_photon_number_pA_basis( N_AD_in_pA, U, op_b, I_m, I_ph, p ):
+        op_b_Total = kron( I_m, op_b.T @ op_b )
+        
+        adaga_Total = op_b_Total + Xi * kron( np.diag(KGrid), op_b.T + op_b ) + Xi**2 * kron( np.diag(KGrid**2), I_ph )
+        
+        for j in range( len(N_AD_in_pA) ):
+            N_AD_in_pA[j] = U[:,j].T @ adaga_Total @ U[:,j]
+        return N_AD_in_pA
+
     print(f"g_wc = {np.round(g_wc,7)}")
 
     g = wc * g_wc
@@ -292,13 +311,14 @@ def get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper( g_wc ):
     ### COMPUTE VARIOUS OBSERVABLES ###
     N_AD = np.zeros(( len(E) ))
     N_AD = compute_photon_number_AD_basis( N_AD, U, get_b(), np.identity( len(E)//Nf ) )
-    
-    
     np.savetxt( f"{DATA_DIR}/N_ADBasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_AD )
-
-def get_H_Total_Fock_Real__CHI_SHIFT( RGrid, Vx_1D, op_b, T_elec ): ## DOES NOT WORK YET
     
-    assert( False ), "\n\tDO NOT USE AD WITH REAL-SPACE CHI SHIFT.\n"
+    N_AD_in_pA = np.zeros(( len(E) ))
+    N_AD_in_pA = compute_photon_number_pA_basis( N_AD_in_pA, U, get_b(), np.identity( len(E)//Nf ), np.identity( Nf ), KGrid )
+    np.savetxt( f"{DATA_DIR}/N_AD_in_pABasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_AD_in_pA )
+    
+
+def get_H_Total_Fock_Real__CHI_SHIFT( RGrid, Vx_1D, op_b, T_elec ):
 
     H_Total = np.zeros(( len(RGrid)*Nf, len(RGrid)*Nf ), dtype=complex )
     m_eff = m0 * ( 1 + (g/wc)**2 )
@@ -385,11 +405,7 @@ def get_H_Total_Fock_Real__Pauli_Fierz__Wrapper( g_wc ):
 
     def compute_photon_number_PF_in_pA_basis( N_PF_in_pA, U, op_b, I_m, I_ph, A0, MU ):
 
-        print( np.shape( op_b ) )
-        print( np.shape( I_m ) )
-        print( np.shape( I_ph ) )
-
-        adaga_PF_in_pA = kron( I_m, op_b.T @ op_b ) + kron( MU, op_b.T + op_b) * A0 + kron( MU @ MU, I_ph ) * A0**2 - 0.5
+        adaga_PF_in_pA = kron( op_b.T @ op_b , I_m ) + kron(op_b.T + op_b, MU) * A0 + kron( MU @ MU, I_ph ) * A0**2 - 0.5
 
         for j in range( len(N_PF_in_pA) ):
             N_PF_in_pA[j] = U[:,j].T @ adaga_PF_in_pA @ U[:,j]
@@ -417,72 +433,14 @@ def get_H_Total_Fock_Real__Pauli_Fierz__Wrapper( g_wc ):
     #np.savetxt( f"U_{BASIS_PHOTON}_{BASIS_ELECTRON}.dat", U )
 
     ### COMPUTE VARIOUS OBSERVABLES ###
-    Nmatter = len(E)//Nf # Accounts for possible truncation of matter states
-
     N_PF = np.zeros(( len(E) ))
-    N_PF = compute_photon_number_PF_basis( N_PF, U, get_b(), np.identity( Nmatter ) )
+    N_PF = compute_photon_number_PF_basis( N_PF, U, get_b(), np.identity( len(E)//Nf ) )
     np.savetxt( f"{DATA_DIR}/N_PFBasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_PF )
 
     N_PF_in_pA = np.zeros(( len(E) ))
-    N_PF_in_pA = compute_photon_number_PF_in_pA_basis( N_PF_in_pA, U, get_b(), np.identity( Nmatter ), np.identity( Nf ), A0, MU[:Nmatter,:Nmatter] )
+    N_PF_in_pA = compute_photon_number_PF_in_pA_basis( N_PF_in_pA, U, get_b(), np.identity( len(E)//Nf ), np.identity( Nf ), A0, MU )
     np.savetxt( f"{DATA_DIR}/N_PF_in_pABasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_PF_in_pA )
 
-def get_H_Total_Fock_Real__Jaynes_Cummings__Truncated( Had, MU, op_b, A0 ): # Enforce additional matter trunction
-
-    assert( Nf == 2 ), f"Jaynes-Cummings only includes two matter states and two Fock states. NFock = {Nf}"
-
-    NTrunc = 2 # Jaynes-Cummings only includes two matter states and two Fock states
-
-    print(f"(Nf, Nm): ({Nf}, {NTrunc})")
-
-    H_Total = np.zeros(( NTrunc*Nf, NTrunc*Nf ) ) # Jaynes-Cummings is real-valued in this case.
-   
-    assert( len(H_Total) == 4 ), f"Jaynes-Cummings must have a 4x4 Hamiltonian, D[H] = {len(H_Total)}"
-
-    H_ph    = np.diag( np.arange(Nf) * wc ) # Photonic Hamiltonian
-    
-    H_Total[0,0] = Had[0,0] + H_ph[0,0] # g0
-    H_Total[1,1] = Had[0,0] + H_ph[1,1] # g1
-
-    H_Total[2,2] = Had[1,1] + H_ph[0,0] # e0
-    H_Total[3,3] = Had[1,1] + H_ph[1,1] # e1
-
-    H_Total[1,2] = MU[0,1] * (op_b.T)[1,0] * (A0 * wc) # g1 -- e0
-    H_Total[2,1] = MU[1,0] * op_b[0,1] * (A0 * wc) # e1 -- g0
-
-    return H_Total
-
-def get_H_Total_Fock_Real__Jaynes_Cummings__Wrapper( g_wc ):
-
-    def compute_photon_number_JC_basis( N_JC, U, op_b, I_m ):
-        op_b_Total = kron( I_m, op_b.T @ op_b )
-        for j in range( len(N_JC) ):
-            N_JC[j] = U[:,j].T @ op_b_Total @ U[:,j] 
-        return N_JC
-    
-    print(f"g_wc = {np.round(g_wc,7)}")
-
-    A0 = (g_wc * wc) / qe / np.sqrt( wc / m0 ) #* 27.2114 * 10
-
-    print(f"A0 = {np.round(A0,7)}")
-
-
-    _, _, MU, Had = get_Real_space_data() # Need electronic dipoles for interactions with photon field
-    H_Total_FockBasis = get_H_Total_Fock_Real__Jaynes_Cummings__Truncated( Had, MU, get_b(), A0 )
-    #plot_H( H_Total_FockBasis, name="H_Total_FockBasis.jpg" )
-    E, U = np.linalg.eigh( H_Total_FockBasis )
-
-    print (f"\tFinished g_wc = {g_wc}")
-
-    np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", E )
-    np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition.dat", E - E[0] )
-    np.savetxt( f"{DATA_DIR}/E_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition_NORM.dat", (E-E[0])/(E[1]-E[0]) )
-    #np.savetxt( f"U_{BASIS_PHOTON}_{BASIS_ELECTRON}.dat", U )
-    
-    N_JC = np.zeros(( len(E) ))
-    N_JC = compute_photon_number_JC_basis( N_JC, U, get_b(), np.identity( len(E)//Nf ) )
-    np.savetxt( f"{DATA_DIR}/N_JCBasis_{HAM}_{BASIS_PHOTON}_{BASIS_ELECTRON}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}.dat", N_JC )
-    
 def get_Reciprocal_space_data():
     VMat_k = np.loadtxt( "Vx/VMat_k.dat", dtype=complex )
     KGrid  = np.loadtxt( "Vx/KGrid.dat" )
@@ -583,12 +541,8 @@ def main_parallel():
             pool.map( get_H_Total_Fock_Reciprocal__CHI_SHIFT__FFT_CONVOLUTION__Wrapper, g_wc_list )
         elif( HAM == 'PF' and BASIS_PHOTON == "Fock" and BASIS_ELECTRON == "R" ): #### SOVE IN FOCK BASIS ####
             pool.map( get_H_Total_Fock_Real__Pauli_Fierz__Wrapper, g_wc_list )
-        elif( HAM == 'JC' and BASIS_PHOTON == "Fock" and BASIS_ELECTRON == "R" ):
-            pool.map( get_H_Total_Fock_Real__Jaynes_Cummings__Wrapper, g_wc_list )
 
 if ( __name__ == '__main__' ):
     #main_serial()
     main_parallel()
-
-
 

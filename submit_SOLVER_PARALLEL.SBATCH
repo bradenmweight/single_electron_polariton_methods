@@ -1,12 +1,14 @@
 #!/bin/bash
-##SBATCH -p exciton -A exciton
+####SBATCH -p action
+####SBATCH -p exciton -A exciton
 #SBATCH -p standard
-#SBATCH -J TD
+####SBATCH -p debug
+#SBATCH -J AD
 #SBATCH -o output.slurm
 #SBATCH -t 5-00:00:00
 #SBATCH -N 1
-#SBATCH --ntasks-per-node=12
-#SBATCH --mem 60GB
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem 150GB
 
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
