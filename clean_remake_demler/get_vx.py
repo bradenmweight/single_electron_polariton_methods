@@ -33,3 +33,10 @@ def get_QHO(nR):
     w = 1.0
     Vx += 0.5 * w**2 * RGrid**2
     return RGrid, Vx
+
+def get_square(nR):
+    RGrid = np.linspace(-2, 2, nR)
+    Vx =  np.zeros(len(RGrid))
+    width = 0.5
+    
+    return RGrid, Vx

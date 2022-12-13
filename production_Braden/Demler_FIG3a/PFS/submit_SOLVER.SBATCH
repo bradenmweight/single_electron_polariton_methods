@@ -1,0 +1,46 @@
+#!/bin/bash
+#SBATCH -p exciton -A exciton
+#SBATCH -J TD
+#SBATCH -o output.slurm
+#SBATCH -t 1-00:00:00
+#SBATCH -N 1
+#SBATCH --ntasks-per-node=12
+#SBATCH --mem 30GB
+
+export OMP_NUM_THREADS=12
+export MKL_NUM_THREADS=12
+
+python3 One-Electron_Polariton_Solver.py 0.0
+
+for j in {1..10..1}; do
+    A=$( bc -l <<< $j*0.001 )
+    echo "A0 = ${A}"
+    python3 One-Electron_Polariton_Solver.py $A
+done
+
+for j in {1..10..1}; do
+    A=$( bc -l <<< $j*0.01 )
+    echo "A0 = ${A}"
+    python3 One-Electron_Polariton_Solver.py $A
+done
+
+for j in {1..10..1}; do
+    A=$( bc -l <<< $j*0.1 )
+    echo "A0 = ${A}"
+    python3 One-Electron_Polariton_Solver.py $A
+done
+
+for j in {1..10..1}; do
+    A=$( bc -l <<< $j*1 )
+    echo "A0 = ${A}"
+    python3 One-Electron_Polariton_Solver.py $A
+done
+
+for j in {1..10..1}; do
+    A=$( bc -l <<< $j*10 )
+    echo "A0 = ${A}"
+    python3 One-Electron_Polariton_Solver.py $A
+done
+
+
+

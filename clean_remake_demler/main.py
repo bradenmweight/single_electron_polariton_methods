@@ -14,7 +14,7 @@ import get_potential_data as v
 import solve_hamiltonian as solve
 
 class param:
-    wc = 0
+    wc = 1
     g_wc = 0
     nf = 5
     NCPUS = 48
