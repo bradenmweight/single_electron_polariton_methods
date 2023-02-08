@@ -36,7 +36,7 @@ class param:
 def main():
 
     constants = param()
-    sp.call(f"mkdir -p data1", shell=True)
+    sp.call(f"mkdir -p data", shell=True)
 
     print(f"wc = {constants.wc}")
 

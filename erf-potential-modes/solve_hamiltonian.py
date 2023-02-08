@@ -25,7 +25,7 @@ def solve_H(const, k, g_wc):
     wc = const.wc
     # g_wc = const.g_wc
     print(f"g/w_c = {g_wc}")
-    np.savetxt( f"data1/E_RAD_k{np.round(k,3)}_{const.nf}_{const.n_kappa}_gwc{np.round(g_wc,7)}_wc{np.round(const.wc_norm,4)}.dat", E )
+    np.savetxt( f"data/E_RAD_k{np.round(k,3)}_{const.nf}_{const.n_kappa}_gwc{np.round(g_wc,7)}_wc{np.round(const.wc_norm,4)}.dat", E )
     # np.savetxt( f"data/E_RAD_k{np.round(k,3)}_{const.nf}_{const.n_kappa}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition.dat", E - E[0] )
     # np.savetxt( f"data/E_RAD_k{np.round(k,3)}_{const.nf}_{const.n_kappa}_gwc{np.round(g_wc,7)}_wc{np.round(wc,4)}_Transition_NORM.dat", (E-E[0])/(E[1]-E[0]) )
 
