@@ -19,8 +19,8 @@ class param:
     nf = 5
     NCPUS = 48
     nk = 32
-    n_kappa = 101 # must be odd 
-    n_kappa2 = 11 # must be odd 
+    n_kappa = 1001 # must be odd 
+    n_kappa2 = 101 # must be odd 
     k = 0.0
     a_0 = 4
     Z = 0.1278
@@ -38,7 +38,7 @@ def main():
     constants = param()
     sp.call(f"mkdir -p data", shell=True)
 
-    print(f"wc = {constants.wc}")
+    # print(f"wc = {constants.wc}")
 
     for k in constants.k_points:
         with mp.Pool(processes=constants.NCPUS) as pool:

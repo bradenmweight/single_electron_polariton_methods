@@ -17,7 +17,7 @@ class param:
     # g_wc = [0.2]
     nf = 5
     NCPUS = 48
-    nk = 128
+    nk = 1024
     n_kappa = 101 # must be odd 
     n_kappa2 = 11 # must be odd 
     k = 0.0

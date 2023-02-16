@@ -5,7 +5,7 @@ import subprocess as sp
 ng = 128
 wc = 1 # a.u.
 nf = 5
-n_kappa = 101
+n_kappa = 1001
 BASIS = "RAD"
 a_0 = 4
 nk = 32

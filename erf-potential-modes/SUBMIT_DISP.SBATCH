@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p preempt
-#SBATCH -J erf_potential
+#SBATCH -J disp_erf_potential
 #SBATCH -o output_disp.slurm
 #SBATCH -t 2-00:00:00
 #SBATCH -N 1

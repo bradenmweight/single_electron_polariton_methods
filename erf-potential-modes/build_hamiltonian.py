@@ -28,7 +28,7 @@ def get_shifted_v(constants):
     # Generate the V with phase factor
     v_shifted = np.zeros((nf*n_kappa,nf*n_kappa), dtype=complex)
     
-    print(f"kappa grid = {kappa_grid2}")
+    # print(f"kappa grid = {kappa_grid2}")
 
     for kappa_ind2 in range(len(kappa_grid2)):
         for kappa_ind in range(len(kappa_grid)):
@@ -49,9 +49,9 @@ def get_shifted_v(constants):
                     else:
                         shift_ind = kappa_ind2 - ((n_kappa2 - 1) // 2)
                         v_diff[kappa_ind, kappa_ind + shift_ind] = -z / 2 / np.pi * scsp.gammaincc(1e-7, (kappa2 / 2 / r_0)**2) * math.gamma(1e-7)
-                        print(f"kappa2 = {kappa2}")
-                        print(f"Off-diagonal term = {v_diff[kappa_ind, kappa_ind + shift_ind]}")
-                        print(f"Shift Index = {shift_ind}")
+                        # print(f"kappa2 = {kappa2}")
+                        # print(f"Off-diagonal term = {v_diff[kappa_ind, kappa_ind + shift_ind]}")
+                        # print(f"Shift Index = {shift_ind}")
 
                 # Add kron(v_diff, exponential) to v_shifted
                 v_shifted += kron(v_diff, exponential) 
@@ -63,14 +63,13 @@ def get_b(nf):
         b[m,m-1] = np.sqrt(m)
     return b.T
 
-def get_momentum(constants):
+def get_kinetic(constants):
     kappa_grid = constants.kappa_grid
     m_eff = constants.m_0 * (1.0 + 2.0 * constants.g_wc**2)
 
     k_e = np.diag(constants.hbar * (kappa_grid + constants.k)**2 / 2.0 / m_eff)
 
-    return k_e
-    
+    return k_e    
 
 def get_h_ph(constants):
     nf = constants.nf
@@ -101,7 +100,7 @@ def construct_h_total(constants):
 
     constants.omega, constants.xi_g = get_couplings(constants)
 
-    k_e = get_momentum(constants)
+    k_e = get_kinetic(constants)
     v_shifted = get_shifted_v(constants)
 
     H = np.zeros((nf*n_kappa,nf*n_kappa), dtype=complex)
