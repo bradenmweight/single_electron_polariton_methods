@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 import subprocess as sp
-nk = 128
+nk = 1024
 wc = 1
 nf = 5
 n_kappa = 101
@@ -13,6 +13,12 @@ g_wc_array =  [ 0.1, 0.2, 0.3,  1, 10, 100]
 y_max_array = [   5,   5,   5,  5,  1, 0.4]
 n_graph_array = [  20,  20,   20,  16,  21, 30]
 # y_max_array = [1]
+dark = True
+
+label = 'bright'
+if dark:
+    plt.style.use('dark_background')
+    label = 'dark'
 
 k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
 
@@ -58,7 +64,7 @@ for ijk in range(len(g_wc_array)):
     lc.set_array(cols)
     lc.set_linewidth(3)
     line = ax.add_collection(lc)
-    
+
     plt.ylim(0.0,y_max)
     plt.xlim(min(k_points),max(k_points))
     cbar = fig.colorbar(line,ax=ax)
@@ -69,8 +75,9 @@ for ijk in range(len(g_wc_array)):
     plt.xticks(ticks = [- np.pi / 4,0, np.pi / 4], labels = ["$-\pi/a_0$", "0", "$\pi/a_0$"],fontsize = fs)
     # plt.title(f"$g / \omega_c =$ {g_wc}",fontsize=fs)
     # plt.ylabel("Energy (a.u.)",fontsize=fs)
-    plt.savefig(f"{DIR}/disp_plot_g{np.round(g_wc,3)}.jpg",dpi=600)
-    plt.savefig(f"{DIR}/disp_plot_g{np.round(g_wc,3)}.svg",format='svg')
+
+    plt.savefig(f"{DIR}/disp_plot_g{np.round(g_wc,3)}_{label}.jpg",dpi=600)
+    plt.savefig(f"{DIR}/disp_plot_g{np.round(g_wc,3)}_{label}.svg",format='svg')
 
     # output = np.zeros(( len(k_points), NPol, 2 ))
     # # output[:,0,0] = k_points

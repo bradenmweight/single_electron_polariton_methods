@@ -5,10 +5,11 @@ import subprocess as sp
 ng = 128
 wc = 1 # a.u.
 nf = 5
-n_kappa = 1001
+n_kappa = 101
 BASIS = "RAD"
 a_0 = 4
 nk = 32
+dark = True
 
 g_wc_list = np.exp( np.linspace( np.log(10**-2), np.log(100), ng ))
 k_list = np.linspace(0, np.pi / a_0, nk)
@@ -20,13 +21,13 @@ NPol = nf * n_kappa
 
 EPol = np.zeros(( len(g_wc_list),len(k_list), NPol ))
 
-zpe = np.min(np.loadtxt( f"data/E_{BASIS}_k{np.round(0.0,3)}_{nf}_{n_kappa}_gwc{np.round(100.0,7)}_wc{np.round(wc,4)}.dat" ))
+zpe = np.min(np.loadtxt( f"data1/E_{BASIS}_k{np.round(0.0,3)}_{nf}_{n_kappa}_gwc{np.round(100.0,7)}_wc{np.round(wc,4)}.dat" ))
 
 for A0_IND, A0 in enumerate( g_wc_list ):
     for k_ind, k in enumerate(k_list):
         print (A0)
         #EPol[A0_IND,:] = np.loadtxt( f"data/E_{BASIS}_A0{np.round(A0,1)}_wc{wc}.dat" ) # Extract actual energies
-        EPol[A0_IND,k_ind,:] = np.loadtxt( f"data/E_{BASIS}_k{np.round(k,3)}_{nf}_{n_kappa}_gwc{np.round(A0,7)}_wc{np.round(wc,4)}.dat" ) -zpe # Extract energies
+        EPol[A0_IND,k_ind,:] = np.loadtxt( f"data1/E_{BASIS}_k{np.round(k,3)}_{nf}_{n_kappa}_gwc{np.round(A0,7)}_wc{np.round(wc,4)}.dat" ) -zpe # Extract energies
 
 print(zpe)
 
@@ -37,9 +38,15 @@ print(zpe)
 # numbers = np.flip(np.linspace(0.2,1,nk))**2
 numbers = (np.linspace(0,1,nk))
 kcolors = ["%.2f" % number for number in numbers]
+label = 'bright'
 
 plot_states = np.arange( 40 )
-# plt.style.use('dark_background')
+
+if dark:
+    plt.style.use('dark_background')
+    kcolors = np.flip(kcolors)
+    label = 'dark'
+
 
 for k_ind in np.flip(range(len(k_list))):
     for state in plot_states:
@@ -52,10 +59,10 @@ plt.xlim(1e-2,100)
 # plt.xlim(10,100)
 plt.ylim(0.01,7)
 # plt.ylim(0.0,0.4)
-plt.xlabel("$g / \omega_c$ (a.u.)",fontsize=15)
+plt.xlabel("$g_0 / \omega_0$ (a.u.)",fontsize=15)
 plt.ylabel("Energy (a.u.)",fontsize=15)
-plt.savefig(f"{DIR}/A0_Scan.jpg",dpi=600)
-plt.savefig(f"{DIR}/A0_Scan.svg",format='svg')
+plt.savefig(f"{DIR}/A0_Scan_{label}.jpg",dpi=600)
+plt.savefig(f"{DIR}/A0_Scan_{label}.svg",format='svg')
 
 output = np.zeros(( len(g_wc_list), NPol + 1 ))
 output[:,0] = g_wc_list

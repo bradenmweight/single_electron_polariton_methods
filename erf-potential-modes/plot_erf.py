@@ -8,6 +8,7 @@ a_0 = 4
 v_0 = 5 / 27.2112
 n_kappa = 20001
 n_kappa_graph = n_kappa
+dark = True
 
 DIR = "plot_erf_pot/"
 sp.call(f"mkdir -p {DIR}", shell=True)
@@ -31,11 +32,20 @@ for r_0_ind, r_0 in enumerate(r_0_array):
     x = np.linspace(-a_0/2, a_0/2, n_kappa_graph)
     cos_graph = -v_0 * np.cos(x * (2 * np.pi / a_0)) - v_0
 
-plt.figure(figsize=(8, 4))
-plt.plot(x, cos_graph, ':', markersize=3, linewidth=6, label='cosine', color = '0.0')
-colors_line = ['0.0','0.3','0.5','0.75']
+black = '0'
+fsize = (8, 4)
+label = 'bright'
+if dark:
+    plt.style.use('dark_background')
+    black = '0.95'
+    fsize = (8,6)
+    label = 'dark'
+
+plt.figure(figsize=fsize)
+plt.plot(x, cos_graph, ':', markersize=3, linewidth=6, label='cosine', color = black)
+# colors_line = ['0.0','0.3','0.5','0.75']
 for r_0_ind in range(len(r_0_array)):
-    plt.plot(x, V_x[:, r_0_ind], linewidth=3, label=f'$r_0$ = {r_0_array[r_0_ind]}', color = colors_line[r_0_ind])
+    plt.plot(x, V_x[:, r_0_ind], linewidth=3, label=f'$r_0$ = {r_0_array[r_0_ind]}')#, color = colors_line[r_0_ind])
     plt.ylim(-1, 0)
 plt.legend(loc='lower right')
 plt.subplots_adjust(left=0.125,
@@ -44,7 +54,7 @@ plt.subplots_adjust(left=0.125,
                     top=0.92,
                     wspace=0.2,
                     hspace=0.2)
-plt.xlabel('r (a.u.)',fontsize=15)
-plt.ylabel('v(r)',fontsize=15)
-# plt.savefig(f"{DIR}/erf.jpg",dpi=600)
-plt.savefig(f"{DIR}/erf.svg",format='svg')
+plt.xlabel('x (a.u.)',fontsize=15)
+plt.ylabel('v(x)',fontsize=15)
+plt.savefig(f"{DIR}/erf_{label}.jpg",dpi=600)
+plt.savefig(f"{DIR}/erf_{label}.svg",format='svg')

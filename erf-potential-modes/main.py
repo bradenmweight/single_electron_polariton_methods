@@ -19,8 +19,8 @@ class param:
     nf = 5
     NCPUS = 48
     nk = 32
-    n_kappa = 1001 # must be odd 
-    n_kappa2 = 101 # must be odd 
+    n_kappa = 501 # must be odd 
+    n_kappa2 = 51 # must be odd 
     k = 0.0
     a_0 = 4
     Z = 0.1278
