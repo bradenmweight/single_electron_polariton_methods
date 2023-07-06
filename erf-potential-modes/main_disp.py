@@ -11,11 +11,11 @@ import solve_hamiltonian as solve
 # Calculate the dispersion plots for cos(x)
 
 class param:
-    wc_norm= 1
-    wc = 1
+    wc_norm= 1.0
+    wc = 0.0 # This number means nothing
     g_wc = [0.1, 0.2, 0.3, 1, 10, 100]
-    # g_wc = [0.2]
-    nf = 5
+    # g_wc = [0.]
+    nf = 20
     NCPUS = 48
     nk = 1024
     n_kappa = 101 # must be odd 

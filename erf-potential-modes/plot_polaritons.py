@@ -83,7 +83,7 @@ plt.xlim(1e-2,100)
 # plt.xlim(10,100)
 plt.ylim(0.01,7)
 # plt.ylim(0.0,0.4)
-plt.xlabel("$g_0 / \omega_0$ (a.u.)",fontsize=fs)
+plt.xlabel("$g_0 / \omega_0$",fontsize=fs)
 plt.ylabel("Energy (a.u.)",fontsize=fs)
 
 lc = LineCollection(all_segments, cmap= cmap)

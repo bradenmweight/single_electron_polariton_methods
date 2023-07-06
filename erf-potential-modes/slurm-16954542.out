@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/var/spool/slurm/job16954542/slurm_script", line 9, in <module>
+    import solve_hamiltonian as solve
+ModuleNotFoundError: No module named 'solve_hamiltonian'
