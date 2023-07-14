@@ -13,9 +13,9 @@ import solve_hamiltonian as solve
 class param:
     wc_norm= 1.0
     wc = 0.0 # This number means nothing
-    # g_wc = [0.1, 0.2, 0.3, 1, 10, 100]
-    g_wc = [0.]
-    nf = 20
+    g_wc = [0.1, 0.2, 0.3, 1, 10, 100]
+    # g_wc = [0.]
+    nf = 6
     NCPUS = 48
     nk = 1024
     n_kappa = 101 # must be odd 

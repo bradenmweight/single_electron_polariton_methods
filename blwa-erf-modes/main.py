@@ -11,11 +11,12 @@ import solve_hamiltonian as solve
 # Calculate the dispersion plots for cos(x)
 
 class param:
-    wc_norm= 1.0
-    wc = 0.0 # This number means nothing
-    # g_wc = [0.1, 0.2, 0.3, 1, 10, 100]
-    g_wc = [0.]
-    nf = 20
+    wc_norm= 1
+    wc = 1
+    g_wc = 0
+    ng = 128
+    g_wc_grid = np.exp( np.linspace( np.log(10**-2), np.log(100), ng ))
+    nf = 7
     NCPUS = 48
     nk = 1024
     n_kappa = 101 # must be odd 
@@ -24,7 +25,7 @@ class param:
     a_0 = 4
     Z = 0.1278
     r_0 = 10
-    k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
+    k_points = np.linspace(0, np.pi / a_0, nk)
     kappa_grid = 2 * np.pi / a_0 * np.linspace(-(n_kappa-1) / 2, (n_kappa-1) / 2, n_kappa)
     kappa_grid2 = 2 * np.pi / a_0 * np.linspace(-(n_kappa2-1) / 2, (n_kappa2-1) / 2, n_kappa2)
     omega = 0
@@ -32,20 +33,21 @@ class param:
     m_0 = 1
     hbar = 1
 
-def solve_wrapper(constants, g_wc, k):
-    return solve.solve_H(constants, k, g_wc)
-
-def main():
+def main(g_min, g_max, ng):
 
     constants = param()
+    constants.ng = ng
+    constants.g_wc_grid = np.exp( np.linspace(np.log(g_min), np.log(g_max), ng ))
     sp.call(f"mkdir -p data", shell=True)
 
     print(f"wc = {constants.wc}")
+    print(f"ng = {constants.ng}, gmin = {np.min(constants.g_wc_grid)}, and gmax = {np.max(constants.g_wc_grid)}")
 
-    for gc in constants.g_wc:
+    for k in constants.k_points:
         with mp.Pool(processes=constants.NCPUS) as pool:
-            pool.map(partial(solve_wrapper, constants, gc), constants.k_points)
+            pool.map(partial(solve.solve_H, constants, k), constants.g_wc_grid)
+
 
 
 if ( __name__ == '__main__' ):
-    main()
+    main(float(sys.argv[1]), float(sys.argv[2]), int(sys.argv[3]))
