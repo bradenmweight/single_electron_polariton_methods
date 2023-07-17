@@ -10,4 +10,4 @@
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 
-python3 main.py 0.010 0.10 32
+python3 main.py 10.0 100.0 32 1024

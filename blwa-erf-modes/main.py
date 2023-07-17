@@ -14,8 +14,8 @@ class param:
     wc_norm= 1
     wc = 1
     g_wc = 0
-    ng = 128
-    g_wc_grid = np.exp( np.linspace( np.log(10**-2), np.log(100), ng ))
+    ng = 121
+    g_wc_grid = 10 ** ( np.linspace( np.log10(10**-2), np.log10(100), ng ))
     nf = 7
     NCPUS = 48
     nk = 1024
@@ -25,7 +25,7 @@ class param:
     a_0 = 4
     Z = 0.1278
     r_0 = 10
-    k_points = np.linspace(0, np.pi / a_0, nk)
+    k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
     kappa_grid = 2 * np.pi / a_0 * np.linspace(-(n_kappa-1) / 2, (n_kappa-1) / 2, n_kappa)
     kappa_grid2 = 2 * np.pi / a_0 * np.linspace(-(n_kappa2-1) / 2, (n_kappa2-1) / 2, n_kappa2)
     omega = 0
@@ -33,11 +33,13 @@ class param:
     m_0 = 1
     hbar = 1
 
-def main(g_min, g_max, ng):
+def main(g_min_log, g_max_log, ng, nk):
 
     constants = param()
     constants.ng = ng
-    constants.g_wc_grid = np.exp( np.linspace(np.log(g_min), np.log(g_max), ng ))
+    constants.nk = nk
+    constants.k_points = np.linspace(-np.pi / constants.a_0, np.pi / constants.a_0, nk)
+    constants.g_wc_grid = 10 ** ( np.linspace((g_min_log), (g_max_log), ng , endpoint=False))
     sp.call(f"mkdir -p data", shell=True)
 
     print(f"wc = {constants.wc}")
@@ -50,4 +52,4 @@ def main(g_min, g_max, ng):
 
 
 if ( __name__ == '__main__' ):
-    main(float(sys.argv[1]), float(sys.argv[2]), int(sys.argv[3]))
+    main(float(sys.argv[1]), float(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]))

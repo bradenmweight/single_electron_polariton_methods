@@ -11,7 +11,7 @@ BASIS = "RAD"
 a_0 = 4
 nk = 128
 skip=4
-dark = True
+dark = False
 
 # file_location = "/home/mtayl29/single_electron_polariton_methods/erf-potential-modes/"
 file_location = "./data"
@@ -45,9 +45,9 @@ except:
 numbers = (np.linspace(0,1,nk))
 kcolors = ["%.2f" % number for number in numbers]
 label = 'bright'
-cmap = 'gray'
+cmap = 'hot'
 
-plot_states = np.arange( 40 )
+plot_states = np.arange( 101 )
 
 if dark:
     plt.style.use('dark_background')
@@ -82,12 +82,12 @@ plt.subplots_adjust(left=0.125,
                     hspace=0.2)
 
 fs = 15
-plt.yscale('log')
+# plt.yscale('log')
 plt.xscale('log')
 plt.xlim(1e-2,100)
 # plt.xlim(10,100)
-plt.ylim(0.01,7)
-# plt.ylim(0.0,0.4)
+# plt.ylim(0.01,50)
+plt.ylim(0.0,10)
 plt.xlabel("$g_0 / \omega_0$",fontsize=fs)
 plt.ylabel("Energy (a.u.)",fontsize=fs)
 

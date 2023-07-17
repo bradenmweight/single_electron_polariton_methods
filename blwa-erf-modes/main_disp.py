@@ -8,7 +8,7 @@ import multiprocessing as mp
 from functools import partial
 import solve_hamiltonian as solve
 
-# Calculate the dispersion plots for cos(x)
+# Calculate the dispersion plots for erf(x)
 
 class param:
     wc_norm= 1.0
