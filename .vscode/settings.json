@@ -1,5 +1,8 @@
 {
     "python.analysis.extraPaths": [
         "./clean_remake_demler"
-    ]
+    ],
+    "editor.wordWrap": "off",
+    "window.autoDetectColorScheme": false,
+    "workbench.colorTheme": "Default Dark Modern"
 }

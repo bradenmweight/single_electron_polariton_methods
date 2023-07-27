@@ -7,3 +7,6 @@
 *.pyc
 *.svg
 *.npy
+*.png
+*.out
+*.gif

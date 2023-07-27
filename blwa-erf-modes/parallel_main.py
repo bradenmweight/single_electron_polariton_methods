@@ -2,10 +2,11 @@ import os
 import numpy as np
 
 # Simulation parameters
-n_sections = 8
-log_g_bounds = np.linspace(-2,2,n_sections+1)
-ng = 32
+n_sections = 16
+log_g_bounds = np.linspace(0,2,n_sections+1)
+ng = 4
 nk = 1024
+n_kappa = 51
 
 print(f"Running main.py with {ng*n_sections} couplings and {nk} k-points")
 
@@ -34,7 +35,7 @@ for ijk in range(n_sections):
     sbatch.write( "export OMP_NUM_THREADS=1 \n")
     sbatch.write( "export MKL_NUM_THREADS=1 \n \n")
 
-    sbatch.write(f"python3 main.py {log_g_bounds[ijk]} {log_g_bounds[ijk+1]} {ng} {nk}")
+    sbatch.write(f"python3 main.py {log_g_bounds[ijk]} {log_g_bounds[ijk+1]} {ng} {nk} {n_kappa}")
 
     sbatch.close()
 

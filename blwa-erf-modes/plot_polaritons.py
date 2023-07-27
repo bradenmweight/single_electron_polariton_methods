@@ -36,7 +36,7 @@ except:
     for A0_IND, A0 in enumerate( g_wc_list ):
         print (A0)
         for k_ind, k in enumerate(k_list):
-            if k_ind%skip:
+            if k_ind%skip == 0:
                 data = np.loadtxt( f"{file_location}/E_RAD_k{np.round(k,3)}_{nf}_{n_kappa}_gwc{np.round(A0,7)}_wc{np.round(wc,4)}.dat", delimiter = ',')
                 EPol[A0_IND,k_ind,:] = data[:,0] -zpe # Extract energies
 

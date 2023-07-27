@@ -3,19 +3,21 @@ from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 import subprocess as sp
 nk = 1024
-wc = 1.0
-nf = 5
+wc = 1
+nf = 7
 n_kappa = 101
 BASIS = "RAD"
 a_0 = 4
-g_wc_array =  [ 0.1, 0.2, 0.3,  1, 10, 100]
-# g_wc_array = [10]
-y_max_array = [5,   5,   5,  5,  1, 10]
+# g_wc_array =  [ 0.1, 0.2, 0.3,  1, 10, 100]
+g_wc_array = [0.0153993]
+# y_max_array = [5,   5,   5,  5,  1, 10]
+y_max_array = [5]
 nticks = [6,6,6,6,6,5]
-n_graph_array = [  20,  20,   20,  16,  21, 20]
+n_graph_array = [  40,  20,   20,  16,  21, 20]
 # y_max_array = [0.4]
 dark = False
 color = True
+not_video = True
 
 label = 'bright'
 black = 'k'
@@ -26,21 +28,23 @@ if dark:
 
 k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
 
-file_location = "/home/mtayl29/single_electron_polariton_methods/blwa-erf-modes/"
+file_location = "/scratch/mtayl29/single_electron_polariton_methods/blwa-erf-modes/"
 
 e_min = 0
 for ijk in np.flip(range(len(g_wc_array))):
     g_wc = g_wc_array[ijk]
     y_max = y_max_array[ijk]
 
-    DIR = f"{file_location}plot_data_disp/"
+    DIR = f"{file_location}gather_data/"
+    IMG_DIR = f"{file_location}plot_data_disp/"
     sp.call(f"mkdir -p {DIR}", shell=True)
     #######
     NPol = nf * n_kappa
 
     try:
-        EPol = np.load( f"{DIR}plot_data_{g_wc}_{nk}_{a_0}_{n_kappa}_{nf}_{wc}.npy")
-        print(f"g/w = {g_wc}")
+        # EPol = np.load( f"{DIR}plot_data_{g_wc}_{nk}_{a_0}_{n_kappa}_{nf}_{wc}.npy")
+        EPol = np.load( f"{DIR}g{'%s' % float('%.4g' % g_wc)}_nk{nk}_nf{nf}_wc{wc}_a0{a_0}_nkappa{n_kappa}.npy")
+        print(f"g/w = {g_wc} exists")
     except:
         EPol = np.zeros(( len(k_points), NPol , 2))
         for k_ind, k in enumerate( k_points ):
@@ -73,6 +77,10 @@ for ijk in np.flip(range(len(g_wc_array))):
             else:
                 all_segments = segments
 
+        for lmn in range(all_segments.shape[0]):
+            if all_segments[lmn,0,1] > 5:
+                cols[lmn] = 0
+
         lc = LineCollection(all_segments, cmap='jet')
         lc.set_array(cols)
         # lc.set_linewidth(3)
@@ -87,11 +95,17 @@ for ijk in np.flip(range(len(g_wc_array))):
     # plt.yscale('log')
     plt.xlim(min(k_points),max(k_points))
     # plt.rcParams["figure.figsize"] = (2,1.5)
-    # plt.xlabel("$k$ (a.u.)",fontsize=fs)
+    plt.xlabel("$k$ (a.u.)",fontsize=fs)
     plt.yticks(fontsize = fs, ticks = np.linspace(0 , y_max, nticks[ijk], True))
     plt.xticks(ticks = [- np.pi / 4,0, np.pi / 4], labels = ["$-\pi/a_0$", "0", "$\pi/a_0$"],fontsize = fs)
-    # plt.title(f"$g / \omega_c =$ {g_wc}",fontsize=fs)
-    # plt.ylabel("Energy (a.u.)",fontsize=fs)
+    plt.title(f"$g / \omega_c =$ {'%s' % float('%.3g' % g_wc)}",fontsize=fs)
+    plt.ylabel("Energy (a.u.)",fontsize=fs)
+    plt.subplots_adjust(left=0.17,
+                    bottom=0.18,
+                    right=0.93,
+                    top=0.87,
+                    wspace=0.2,
+                    hspace=0.2)
 
     if dark:
         # plt.title(f"$g_0 / \omega_0 =$ {g_wc}",fontsize=fs, pad = 15)
@@ -105,8 +119,8 @@ for ijk in np.flip(range(len(g_wc_array))):
                     wspace=0.2,
                     hspace=0.2)
 
-    plt.savefig(f"{DIR}/disp_plot_g{np.round(g_wc,3)}_nf{nf}_{label}.jpg",dpi=600)
-    # plt.savefig(f"{DIR}/disp_plot_g{np.round(g_wc,3)}_nf{nf}_{label}.svg",format='svg')
+    plt.savefig(f"{IMG_DIR}/disp_plot_g{np.round(g_wc,3)}_nf{nf}_{label}.jpg",dpi=600)
+    # plt.savefig(f"{IMG_DIR}/disp_plot_g{np.round(g_wc,3)}_nf{nf}_{label}.svg",format='svg')
 
     np.save( f"{DIR}plot_data_{g_wc}_{nk}_{a_0}_{n_kappa}_{nf}_{wc}.npy", EPol)
 
