@@ -2,18 +2,18 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 import subprocess as sp
-nk = 1024
-wc = 1
-nf = 7
+nk = 256
+wc = 1.0
+nf = 10
 n_kappa = 101
-BASIS = "RAD"
+BASIS = "pA"
 a_0 = 4
 # g_wc_array =  [ 0.1, 0.2, 0.3,  1, 10, 100]
 g_wc_array = [0.0]
 # y_max_array = [5,   5,   5,  5,  1, 10]
 y_max_array = [5]
 nticks = [6,6,6,6,6,5]
-n_graph_array = [  50,  20,   20,  16,  21, 20]
+n_graph_array = [  20,  20,   20,  16,  21, 20]
 # y_max_array = [0.4]
 dark = False
 color = True
@@ -28,15 +28,14 @@ if dark:
 
 k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
 
-file_location = "/scratch/mtayl29/single_electron_polariton_methods/blwa-erf-modes/"
+file_location = "/scratch/mtayl29/single_electron_polariton_methods/blwa-erf-modes/coulomb_disp/"
 
 e_min = 0
 for ijk in np.flip(range(len(g_wc_array))):
     g_wc = g_wc_array[ijk]
     y_max = y_max_array[ijk]
 
-    DIR = f"{file_location}gather_data/"
-    IMG_DIR = f"{file_location}plot_data_disp/"
+    DIR = f"{file_location}plot_data_disp/"
     sp.call(f"mkdir -p {DIR}", shell=True)
     #######
     NPol = nf * n_kappa
@@ -91,9 +90,9 @@ for ijk in np.flip(range(len(g_wc_array))):
         for state in plot_states:
             plt.plot( k_points, EPol[:,state], color=black)
 
-    plt.ylim(-2.0,y_max)
+    # plt.ylim(0.0,y_max)
     # plt.yscale('log')
-    # ax.set_ylim(top=y_max)
+    ax.set_ylim(top=y_max)
     plt.xlim(min(k_points),max(k_points))
     # plt.rcParams["figure.figsize"] = (2,1.5)
     plt.xlabel("$k$ (a.u.)",fontsize=fs)
@@ -120,7 +119,7 @@ for ijk in np.flip(range(len(g_wc_array))):
                     wspace=0.2,
                     hspace=0.2)
 
-    plt.savefig(f"{IMG_DIR}/disp_plot_g{np.round(g_wc,3)}_nf{nf}_{label}.jpg",dpi=600)
+    plt.savefig(f"{DIR}disp_plot_g{np.round(g_wc,3)}_nf{nf}_{label}.jpg",dpi=600)
     # plt.savefig(f"{IMG_DIR}/disp_plot_g{np.round(g_wc,3)}_nf{nf}_{label}.svg",format='svg')
 
     np.save( f"{DIR}plot_data_{g_wc}_{nk}_{a_0}_{n_kappa}_{nf}_{wc}.npy", EPol)

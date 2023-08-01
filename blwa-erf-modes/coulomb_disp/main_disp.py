@@ -15,20 +15,22 @@ class param:
     wc = 0.0 # This number means nothing
     # g_wc = [0.1, 0.2, 0.3, 1, 10, 100]
     g_wc = [0.0]
-    nf = 7
+    a_k = 0 # placeholder
+    nf = 10
     NCPUS = 48
-    nk = 1024
+    nk = 256
     n_kappa = 101 # must be odd 
     n_kappa2 = 11 # must be odd 
     k = 0.0
+    # V parapmeters
     a_0 = 4
     Z = 0.1278
     r_0 = 10
+    # Grids
     k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
     kappa_grid = 2 * np.pi / a_0 * np.linspace(-(n_kappa-1) / 2, (n_kappa-1) / 2, n_kappa)
     kappa_grid2 = 2 * np.pi / a_0 * np.linspace(-(n_kappa2-1) / 2, (n_kappa2-1) / 2, n_kappa2)
-    omega = 0
-    xi_g = 0
+    # Matter parameters
     m_0 = 1
     hbar = 1
     load_existing = True

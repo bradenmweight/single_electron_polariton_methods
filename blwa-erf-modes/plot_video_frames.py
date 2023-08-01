@@ -4,14 +4,18 @@ from matplotlib.collections import LineCollection
 import subprocess as sp
 from matplotlib.animation import FuncAnimation
 
-nk = 1024
-g_min_log = -2
+nk = 512
+g_min_log =  0
 g_max_log =  2
-ng = 32 * 8 +1
+
+ng = 8
+n_sections = 8
+end = False
+ng_total = ng * n_sections + int(end)
 
 wc = 1
-nf = 7
-n_kappa = 101
+nf = 3
+n_kappa = 501
 BASIS = "RAD"
 a_0 = 4
 dark = False
@@ -20,9 +24,9 @@ g_skip = 1
 NPol = nf * n_kappa
 
 k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
-g_wc_array = 10 ** ( np.linspace((g_min_log), (g_max_log), ng, endpoint=True))
-y_max_array = np.ones((ng)) * 5.0
-n_graph_array = (np.ones((ng)) * 200).astype(int)
+g_wc_array = 10 ** ( np.linspace((g_min_log), (g_max_log), ng_total, endpoint=end))
+y_max_array = np.ones((ng_total)) * 5.0
+n_graph_array = (np.ones((ng_total)) * 200).astype(int)
 
 file_location = "/scratch/mtayl29/single_electron_polariton_methods/blwa-erf-modes/"
 

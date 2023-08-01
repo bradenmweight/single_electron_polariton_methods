@@ -32,18 +32,25 @@ class param:
     xi_g = 0
     m_0 = 1
     hbar = 1
+    load_existing = True
 
 def solve_wrapper(constants, g_wc, k):
     return solve.solve_H(constants, k, g_wc)
 
-def main(g_min_log, g_max_log, ng, nk, n_kappa):
+def main(g_min_log, g_max_log, ng, nk, n_kappa, nf):
 
     constants = param()
     constants.ng = ng
+    constants.nf = nf
     constants.nk = nk
     constants.n_kappa = n_kappa
+    constants.kappa_grid = 2 * np.pi /constants.a_0 * np.linspace(-(n_kappa-1) / 2, (n_kappa-1) / 2, n_kappa)
+    constants.kappa_grid2 = 2 * np.pi / constants.a_0 * np.linspace(-(constants.n_kappa2-1) / 2, (constants.n_kappa2-1) / 2, constants.n_kappa2)
     constants.k_points = np.linspace(-np.pi / constants.a_0, np.pi / constants.a_0, nk)
-    constants.g_wc_grid = 10 ** ( np.linspace((g_min_log), (g_max_log), ng , endpoint=False))
+    if g_max_log == 2:
+        constants.g_wc_grid = 10 ** ( np.linspace((g_min_log), (g_max_log), ng + 1 , endpoint=True))
+    else:
+        constants.g_wc_grid = 10 ** ( np.linspace((g_min_log), (g_max_log), ng , endpoint=False))
     sp.call(f"mkdir -p data", shell=True)
 
     print(f"wc = {constants.wc}")
@@ -54,7 +61,7 @@ def main(g_min_log, g_max_log, ng, nk, n_kappa):
             with mp.Pool(processes=constants.NCPUS) as pool:
                 pool.map(partial(solve.solve_H, constants, k), constants.g_wc_grid)
     else:
-        for gc in constants.g_wc:
+        for gc in constants.g_wc_grid:
             with mp.Pool(processes=constants.NCPUS) as pool:
                 pool.map(partial(solve_wrapper, constants, gc), constants.k_points)
 
@@ -62,4 +69,4 @@ def main(g_min_log, g_max_log, ng, nk, n_kappa):
 
 
 if ( __name__ == '__main__' ):
-    main(float(sys.argv[1]), float(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]))
+    main(float(sys.argv[1]), float(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]),int(sys.argv[6]))

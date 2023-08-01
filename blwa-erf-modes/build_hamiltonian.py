@@ -119,7 +119,7 @@ def get_couplings(constants):
     g = constants.wc * constants.g_wc 
     N = 1 # Number of electrons
 
-    omega = np.sqrt(constants.wc**2 + 2 * N * g**2)
+    omega = np.sqrt(constants.wc**2 + 2 * g**2)
     x_omega = np.sqrt(hbar / (m * omega))
     xi_g = g * x_omega / omega
 
