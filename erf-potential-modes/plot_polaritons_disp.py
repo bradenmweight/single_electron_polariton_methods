@@ -3,19 +3,19 @@ from matplotlib import pyplot as plt
 from matplotlib.collections import LineCollection
 import subprocess as sp
 nk = 1024
-wc = 0.2
-nf = 5
+wc = 1.0
+nf = 1
 n_kappa = 101
 BASIS = "RAD"
 a_0 = 4
-g_wc_array =  [ 0.1, 0.2, 0.3,  1, 10, 100]
-# g_wc_array = [0.1]
-y_max_array = [   2,   2,   2,  2,  1, 0.4]
+# g_wc_array =  [ 0.1, 0.2, 0.3,  1, 10, 100]
+g_wc_array = [0.0]
+y_max_array = [   5,   2,   2,  2,  1, 0.4]
 nticks = [6,6,6,6,6,5]
 n_graph_array = [  20,  20,   20,  16,  21, 30]
 # y_max_array = [0.4]
-dark = True
-color = True
+dark = False
+color = False
 
 label = 'bright'
 black = 'k'
@@ -26,7 +26,7 @@ if dark:
 
 k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
 
-file_location = "/home/mtayl29/single_electron_polariton_methods/erf-potential-modes/"
+file_location = "/scratch/mtayl29/single_electron_polariton_methods/erf-potential-modes/"
 
 e_min = 0
 for ijk in np.flip(range(len(g_wc_array))):

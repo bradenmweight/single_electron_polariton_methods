@@ -1,11 +1,11 @@
 #!/bin/bash
-#SBATCH -p preempt
+#SBATCH -p action -A action
 #SBATCH -J disp_erf_potential
 #SBATCH -o output_disp.slurm
 #SBATCH -t 2-00:00:00
 #SBATCH -N 1
-#SBATCH --ntasks-per-node=48
-#SBATCH --mem 300GB
+#SBATCH --ntasks-per-node=24
+#SBATCH --mem 60GB
 
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1

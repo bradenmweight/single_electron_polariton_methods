@@ -68,14 +68,17 @@ def get_a(nf, constants):
     wc = constants.wc
     omega = constants.omega
 
-    u = 0.25 * (omega**2 + wc**2) / (omega * wc) - 0.5
-    v = u + 1
+    # u = 0.25 * (omega**2 + wc**2) / (omega * wc) - 0.5
+    # v = u + 1
+    s_wc = np.sqrt(omega / wc)
+    u = 0.5 * ( s_wc - 1/s_wc )
+    v = 0.5 * ( s_wc + 1/s_wc )
 
     b = get_b(nf)
 
     a = u * b - v * b.T
 
-    return a
+    return a.T # Added this for the 0.303 ... Probably wrong
 
 def get_kinetic(constants):
     n_kappa = constants.n_kappa
@@ -98,10 +101,10 @@ def get_kinetic(constants):
     # p_new = constants.hbar * ( kron(np.diag(kappa_grid + constants.k),i_ph) - kron(i_m , aa * constants.k))
     
     a = get_a(nf, constants)
-    p_new = constants.hbar * ( kron(np.diag(kappa_grid + constants.k),i_ph) - kron(i_m , a.T@a * constants.k))
+    p_new = constants.hbar * ( kron(np.diag(kappa_grid + constants.k),i_ph) - kron(i_m , (a.T@a ) * (constants.k - constants.k_shift)))
 
     # k_e = np.diag(constants.hbar * (kappa_grid + constants.k)**2 / 2.0 / m_eff)
-    k_e = p_new**2 / 2.0 / m_eff
+    k_e = p_new@p_new / 2.0 / m_eff
 
     return k_e    
 
@@ -117,7 +120,6 @@ def get_couplings(constants):
     m = constants.m_0 # Mass of electron
     hbar = constants.hbar
     g = constants.wc * constants.g_wc 
-    N = 1 # Number of electrons
 
     omega = np.sqrt(constants.wc**2 + 2 * g**2)
     x_omega = np.sqrt(hbar / (m * omega))
@@ -133,6 +135,7 @@ def construct_h_total(constants):
     i_ph = np.identity(nf)
 
     constants.omega, constants.xi_g = get_couplings(constants)
+    print(f"Omega = {constants.omega}")
 
     k_e = get_kinetic(constants)
     v_shifted = get_shifted_v(constants)

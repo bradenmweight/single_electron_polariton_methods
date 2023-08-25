@@ -7,7 +7,7 @@ import subprocess as sp
 a_0 = 4
 v_0 = 5 / 27.2112
 n_kappa = 10001
-dark = True
+dark = False
 n_cells = 3
 n_kappa_graph = n_kappa * n_cells
 model = 'erf'
@@ -48,7 +48,8 @@ for r_0_ind, r_0 in enumerate(r_0_array):
     cos_graph = -v_0 * np.cos(x * (2 * np.pi / a_0)) - v_0
 
 black = '0'
-fsize = (8, 4)
+# fsize = (8, 4)
+fsize = (15,4)
 label = 'bright'
 if dark:
     plt.style.use('dark_background')
@@ -69,14 +70,18 @@ for r_0_ind in range(len(r_0_array)):
     plt.plot(x, V_x[:, r_0_ind], linewidth=3, label=f'$r_0$ = {r_0_array[r_0_ind]}', color= 'red')#, color = colors_line[r_0_ind])
     plt.ylim(-1, 0)
 
-plt.legend(loc='lower right')
-plt.subplots_adjust(left=0.05,
-                    bottom=0.14,
+fs = 18
+
+plt.legend(loc='lower right',fontsize=fs)
+plt.subplots_adjust(left=0.07,
+                    bottom=0.21,
                     right=0.95,
                     top=0.92,
                     wspace=0.2,
                     hspace=0.2)
-plt.xlabel('x (a.u.)',fontsize=15)
-plt.ylabel('V(x)',fontsize=15)
+plt.xlabel('x (a.u.)',fontsize=fs)
+plt.ylabel('V(x)',fontsize=fs)
+plt.xticks(fontsize=fs)
+plt.yticks(fontsize=fs)
 plt.savefig(f"{DIR}/{model}_{label}.jpg",dpi=600)
 plt.savefig(f"{DIR}/{model}_{label}.svg",format='svg')

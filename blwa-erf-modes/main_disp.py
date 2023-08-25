@@ -7,37 +7,39 @@ import sys
 import multiprocessing as mp
 from functools import partial
 import solve_hamiltonian as solve
+from time import time
 
 # Calculate the dispersion plots for erf(x)
 
 class param:
     wc_norm= 1.0
     wc = 0.0 # This number means nothing
-    # g_wc = [0.1, 0.2, 0.3, 1, 10, 100]
-    g_wc = [0.0]
+    # g_wc = [0.0, 0.1, 0.2, 0.3, 1, 10, 100]
+    g_wc = [0.3]
     nf = 7
     NCPUS = 48
-    nk = 1024
+    nk = 240
     n_kappa = 101 # must be odd 
     n_kappa2 = 11 # must be odd 
     k = 0.0
     a_0 = 4
     Z = 0.1278
     r_0 = 10
-    k_points = np.linspace(-np.pi / a_0, np.pi / a_0, nk)
+    k_shift = 0 #np.pi / a_0
+    k_points = np.linspace(-np.pi / a_0 + k_shift, np.pi / a_0 + k_shift, nk)
     kappa_grid = 2 * np.pi / a_0 * np.linspace(-(n_kappa-1) / 2, (n_kappa-1) / 2, n_kappa)
     kappa_grid2 = 2 * np.pi / a_0 * np.linspace(-(n_kappa2-1) / 2, (n_kappa2-1) / 2, n_kappa2)
     omega = 0
     xi_g = 0
     m_0 = 1
     hbar = 1
-    load_existing = True
+    load_existing = False
 
 def solve_wrapper(constants, g_wc, k):
     return solve.solve_H(constants, k, g_wc)
 
 def main():
-
+    start = time()
     constants = param()
     sp.call(f"mkdir -p data", shell=True)
 
@@ -47,6 +49,8 @@ def main():
         with mp.Pool(processes=constants.NCPUS) as pool:
             pool.map(partial(solve_wrapper, constants, gc), constants.k_points)
 
+    end = time()
+    print(f"Run time = {(end - start) / 60} min")
 
 if ( __name__ == '__main__' ):
     main()

@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import subprocess as sp
 from matplotlib.collections import LineCollection
+from matplotlib.colors import LinearSegmentedColormap
 
 ng = 128
 wc = 1 # a.u.
@@ -10,7 +11,7 @@ n_kappa = 101
 BASIS = "RAD"
 a_0 = 4
 nk = 32
-dark = True
+dark = False
 
 # file_location = "/home/mtayl29/single_electron_polariton_methods/erf-potential-modes/"
 file_location = "./"
@@ -37,10 +38,14 @@ except:
 
     print(zpe)
 
+colors = [(0, 0, 0), (1, 0, 0)] # first color is black, last is red
+cm = LinearSegmentedColormap.from_list(
+        "Custom", colors, N=nk)
+
 numbers = (np.linspace(0,1,nk))
 kcolors = ["%.2f" % number for number in numbers]
 label = 'bright'
-cmap = 'gray'
+cmap = cm
 
 plot_states = np.arange( 40 )
 

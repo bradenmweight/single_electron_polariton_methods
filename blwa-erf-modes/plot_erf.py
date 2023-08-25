@@ -11,8 +11,8 @@ dark = True
 n_cells = 3
 n_kappa_graph = n_kappa * n_cells
 model = 'erf'
-plot_cosine = True
-plot_inf = True
+plot_cosine = False
+plot_inf = False
 
 DIR = f"plot_{model}_pot/"
 sp.call(f"mkdir -p {DIR}", shell=True)
@@ -47,8 +47,11 @@ for r_0_ind, r_0 in enumerate(r_0_array):
     x = np.linspace(-a_0/2 * n_cells, a_0/2* n_cells, n_kappa_graph)
     cos_graph = -v_0 * np.cos(x * (2 * np.pi / a_0)) - v_0
 
+
+fig, ax = plt.subplots()
+
 black = '0'
-fsize = (8, 4)
+fsize = (8, 2)
 label = 'bright'
 if dark:
     plt.style.use('dark_background')
@@ -56,27 +59,33 @@ if dark:
     fsize = (15,4)
     label = 'dark'
 
-plt.figure(figsize=fsize)
+
+# plt.figure(figsize=fsize)
+plt.rcParams['figure.figsize'] = fsize
 if plot_cosine:
-    plt.plot(x, cos_graph, ':', markersize=3, linewidth=6, label=r'$r_0 \ll 1$', color = black)
+    ax.plt.plot(x, cos_graph, ':', markersize=3, linewidth=6, label=r'$r_0 \ll 1$', color = black)
 # colors_line = ['0.0','0.3','0.5','0.75']
 if plot_inf:
     inf_graph = np.zeros((n_kappa))
     inf_graph[n_kappa//2] = -1e10
     inf_graph = np.kron(np.ones((n_cells)), inf_graph)
-    plt.plot(x, inf_graph, linewidth=3, label=r'$r_0 \;\rightarrow \infty$', color = black)
+    ax.plot(x, inf_graph, linewidth=3, label=r'$r_0 \;\rightarrow \infty$', color = black)
 for r_0_ind in range(len(r_0_array)):
-    plt.plot(x, V_x[:, r_0_ind], linewidth=3, label=f'$r_0$ = {r_0_array[r_0_ind]}', color= 'red')#, color = colors_line[r_0_ind])
+    ax.plot(x, V_x[:, r_0_ind], linewidth=3, label=f'$r_0$ = {r_0_array[r_0_ind]}', color= 'red')#, color = colors_line[r_0_ind])
     plt.ylim(-1, 0)
 
-plt.legend(loc='lower right')
-plt.subplots_adjust(left=0.05,
+
+# fig.patch.set_visible(False)
+ax.axis('off')
+
+# plt.legend(loc='lower right')
+fig.subplots_adjust(left=0.05,
                     bottom=0.14,
                     right=0.95,
                     top=0.92,
                     wspace=0.2,
                     hspace=0.2)
-plt.xlabel('x (a.u.)',fontsize=15)
-plt.ylabel('V(x)',fontsize=15)
-plt.savefig(f"{DIR}/{model}_{label}.jpg",dpi=600)
-plt.savefig(f"{DIR}/{model}_{label}.svg",format='svg')
+# plt.xlabel('x (a.u.)',fontsize=15)
+# plt.ylabel('V(x)',fontsize=15)
+fig.savefig(f"{DIR}/{model}_{label}.jpg",dpi=600)
+fig.savefig(f"{DIR}/{model}_{label}.svg",format='svg')
