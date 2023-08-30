@@ -19,7 +19,7 @@ class param:
     a_k = 0 # placeholder
     nf = 5
     NCPUS = 48
-    nk = 128
+    nk = 240
     n_kappa = 101 # must be odd 
     n_kappa2 = 11 # must be odd 
     k = 0.0

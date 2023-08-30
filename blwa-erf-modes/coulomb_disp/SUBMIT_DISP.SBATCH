@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -p action -A action
+#SBATCH -p standard
 #SBATCH -J disp_pA
 #SBATCH -o output_disp.out
 #SBATCH -t 2-00:00:00
